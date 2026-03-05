@@ -10,18 +10,15 @@ export const authProvider: AuthProvider = {
     const selectedRole = role || "customer";
     localStorage.setItem("cds-role", selectedRole);
 
-    return {
-      success: true,
-      redirectTo: "/",
-    };
+    // Hard reload to re-initialize role-based resources
+    window.location.href = "/";
+    return { success: true };
   },
 
   logout: async () => {
     localStorage.removeItem("cds-role");
-    return {
-      success: true,
-      redirectTo: "/login",
-    };
+    window.location.href = "/login";
+    return { success: true };
   },
 
   check: async () => {

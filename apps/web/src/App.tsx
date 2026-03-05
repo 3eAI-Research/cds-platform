@@ -17,10 +17,10 @@ import {
   FileProtectOutlined,
   ShopOutlined,
   DollarOutlined,
-  WalletOutlined,
 } from "@ant-design/icons";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import "@refinedev/antd/dist/reset.css";
+import type { ResourceProps } from "@refinedev/core";
 
 import { dataProvider } from "./providers/data-provider";
 import { authProvider } from "./providers/auth-provider";
@@ -50,7 +50,53 @@ const PageLoader = () => (
   </div>
 );
 
+function useRoleResources(): ResourceProps[] {
+  const role = localStorage.getItem("cds-role") || "customer";
+  const isProvider = role === "provider";
+
+  return useMemo(() => {
+    // Shared resources
+    const contracts: ResourceProps = {
+      name: "contracts",
+      list: "/contracts",
+      show: "/contracts/:id",
+      meta: { label: "Verträge", icon: <FileProtectOutlined /> },
+    };
+
+    if (isProvider) {
+      return [
+        {
+          name: "demands",
+          list: "/demands",
+          show: "/demands/:id",
+          meta: { label: "Marktplatz", icon: <ShopOutlined /> },
+        },
+        {
+          name: "offers",
+          list: "/offers",
+          meta: { label: "Meine Angebote", icon: <DollarOutlined /> },
+        },
+        contracts,
+      ];
+    }
+
+    // Customer
+    return [
+      {
+        name: "demands",
+        list: "/demands",
+        show: "/demands/:id",
+        create: "/demands/create",
+        meta: { label: "Meine Anfragen", icon: <FileTextOutlined /> },
+      },
+      contracts,
+    ];
+  }, [isProvider]);
+}
+
 function App() {
+  const resources = useRoleResources();
+
   return (
     <ErrorBoundary>
     <BrowserRouter>
@@ -62,41 +108,7 @@ function App() {
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
             i18nProvider={i18nProvider}
-            resources={[
-              {
-                name: "demands",
-                list: "/demands",
-                show: "/demands/:id",
-                create: "/demands/create",
-                meta: { label: "Umzugsanfragen", icon: <FileTextOutlined /> },
-              },
-              {
-                name: "contracts",
-                list: "/contracts",
-                show: "/contracts/:id",
-                meta: {
-                  label: "Verträge",
-                  icon: <FileProtectOutlined />,
-                },
-              },
-              {
-                name: "offers",
-                list: "/offers",
-                meta: { label: "Angebote", icon: <DollarOutlined /> },
-              },
-              {
-                name: "providers",
-                list: "/providers",
-                show: "/providers/:id",
-                create: "/providers/create",
-                meta: { label: "Unternehmen", icon: <ShopOutlined /> },
-              },
-              {
-                name: "payments",
-                list: "/payments",
-                meta: { label: "Zahlungen", icon: <WalletOutlined /> },
-              },
-            ]}
+            resources={resources}
             options={{
               syncWithLocation: true,
               warnWhenUnsavedChanges: true,
