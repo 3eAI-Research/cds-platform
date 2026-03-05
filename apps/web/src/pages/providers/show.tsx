@@ -44,7 +44,7 @@ export const ProviderShow = () => {
   const role = localStorage.getItem("cds-role") || "customer";
 
   const { data, isLoading } = useCustom({
-    url: `/api/v1/providers/${id}`,
+    url: `/providers/${id}`,
     method: "get",
     config: { headers: { "X-User-Role": role } },
     queryOptions: { enabled: !!id },
@@ -52,7 +52,7 @@ export const ProviderShow = () => {
 
   // Fetch reviews for this provider
   const { data: reviewsData } = useCustom<{ items: Review[] }>({
-    url: "/api/v1/reviews",
+    url: "/reviews",
     method: "get",
     config: {
       query: { revieweeUserId: id, direction: "CUSTOMER_TO_PROVIDER", pageSize: 10 },

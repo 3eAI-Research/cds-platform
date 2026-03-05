@@ -45,7 +45,7 @@ export const DemandCreate = () => {
 
   // Fetch estate types
   const { data: estateTypesData } = useCustom<EstateType[]>({
-    url: "/api/v1/estate-types",
+    url: "/estate-types",
     method: "get",
     config: { headers: { "Accept-Language": "de" } },
   });
@@ -54,7 +54,7 @@ export const DemandCreate = () => {
   // Fetch room types for selected estate type
   const selectedFromEstateType = Form.useWatch(["from", "estate", "estateTypeId"], form);
   const { data: fromPartsData } = useCustom<{ partTypes: EstatePartType[] }>({
-    url: `/api/v1/estate-types/${selectedFromEstateType}/parts`,
+    url: `/estate-types/${selectedFromEstateType}/parts`,
     method: "get",
     config: { headers: { "Accept-Language": "de" } },
     queryOptions: { enabled: !!selectedFromEstateType },

@@ -31,7 +31,7 @@ export const OfferList = () => {
   const role = localStorage.getItem("cds-role") || "customer";
 
   const { data, isLoading } = useCustom<{ items: Offer[]; total: number }>({
-    url: "/api/v1/offers",
+    url: "/offers",
     method: "get",
     config: {
       query: { pageSize: 50 },

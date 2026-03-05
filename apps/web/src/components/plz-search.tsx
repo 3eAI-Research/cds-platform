@@ -23,7 +23,7 @@ export const PlzSearch = ({ value, onChange, placeholder }: PlzSearchProps) => {
   const [search, setSearch] = useState(value || "");
 
   const { data, isLoading } = useCustom<PostCode[]>({
-    url: `/api/v1/post-codes/${search}`,
+    url: `/post-codes/${search}`,
     method: "get",
     queryOptions: {
       enabled: search.length >= 2 && /^\d{2,5}$/.test(search),

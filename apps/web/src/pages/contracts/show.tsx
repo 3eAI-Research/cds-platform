@@ -52,7 +52,7 @@ export const ContractShow = () => {
   const [cancelReason, setCancelReason] = useState("");
 
   const { data, isLoading, refetch } = useCustom({
-    url: `/api/v1/contracts/${id}`,
+    url: `/contracts/${id}`,
     method: "get",
     config: { headers: { "X-User-Role": role } },
     queryOptions: { enabled: !!id },

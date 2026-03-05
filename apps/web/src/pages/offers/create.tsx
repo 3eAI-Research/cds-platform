@@ -34,7 +34,7 @@ export const OfferCreate = () => {
 
   // Fetch demand info
   const { data: demandData, isLoading } = useCustom({
-    url: `/api/v1/demands/${demandId}`,
+    url: `/demands/${demandId}`,
     method: "get",
     config: { headers: { "X-User-Role": role } },
     queryOptions: { enabled: !!demandId },

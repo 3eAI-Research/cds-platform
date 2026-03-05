@@ -30,7 +30,7 @@ interface FurniturePickerProps {
 
 export const FurniturePicker = ({ value = [], onChange }: FurniturePickerProps) => {
   const { data, isLoading } = useCustom<FurnitureGroup[]>({
-    url: "/api/v1/furniture-groups",
+    url: "/furniture-groups",
     method: "get",
     config: {
       headers: { "Accept-Language": "de" },

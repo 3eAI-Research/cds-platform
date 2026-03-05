@@ -20,7 +20,7 @@ export const NotificationBell = () => {
   const [open, setOpen] = useState(false);
 
   const { data, refetch } = useCustom<{ items: Notification[]; total: number }>({
-    url: "/api/v1/notifications",
+    url: "/notifications",
     method: "get",
     config: {
       query: { pageSize: 10 },

@@ -79,7 +79,7 @@ export const DemandShow = () => {
     items: Offer[];
     total: number;
   }>({
-    url: `/api/v1/offers`,
+    url: `/offers`,
     method: "get",
     config: {
       query: { demandId: id, pageSize: 50 },
