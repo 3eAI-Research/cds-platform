@@ -1,0 +1,25 @@
+{
+  "name": "cds-platform",
+  "version": "0.1.0",
+  "description": "CDS (Community Driven Services) — Open-source, low-commission service marketplace",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "api": "npm -w @cds/api run",
+    "api:dev": "npm -w @cds/api run start:dev",
+    "api:build": "npm -w @cds/api run build",
+    "web": "npm -w @cds/web run",
+    "web:dev": "npm -w @cds/web run dev",
+    "web:build": "npm -w @cds/web run build",
+    "dev": "npx concurrently -n api,web -c blue,green \"npm run api:dev\" \"npm run web:dev\"",
+    "build": "npm -w @cds/api run build && npm -w @cds/web run build",
+    "docker:up": "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down"
+  }
+}

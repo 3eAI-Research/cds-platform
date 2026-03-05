@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "team-hub-mimar": {
+      "type": "http",
+      "url": "http://localhost:3001/team-hub/api/v1/mcp",
+      "headers": {
+        "X-API-Key": "dev_mimar_key_2026"
+      }
+    },
+    "team-hub-muhendis": {
+      "type": "http",
+      "url": "http://localhost:3001/team-hub/api/v1/mcp",
+      "headers": {
+        "X-API-Key": "dev_muhendis_key_2026"
+      }
+    }
+  }
+}

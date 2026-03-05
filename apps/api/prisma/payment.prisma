@@ -1,0 +1,70 @@
+// =============================================================================
+// Payment Schema — Stripe Connect Europe integration
+//
+// Hosted checkout: card data never touches our servers (SAQ A).
+// Commission split: platform 3-5%, rest to provider.
+// All amounts stored as integer cents to prevent floating-point issues.
+//
+// Transaction types: SERVICE_PAYMENT, DEPOSIT, REFUND, DEPOSIT_RETURN
+//
+// @see docs/domain-model/payment.ts
+// =============================================================================
+
+// --- Payment Transaction (Zahlungstransaktion) ---
+
+/// A payment transaction record. Tracks the full lifecycle:
+/// initiated → completed → transferred (provider payout).
+model PaymentTransaction {
+  id                       String    @id @default(uuid()) @db.Uuid
+  contractId               String    @map("contract_id") @db.Uuid // cross-schema ref → contract.contracts
+  demandId                 String    @map("demand_id") @db.Uuid // cross-schema ref → demand.demands
+  customerUserId           String    @map("customer_user_id") @db.Uuid // cross-schema ref
+  providerUserId           String    @map("provider_user_id") @db.Uuid // cross-schema ref
+  providerCompanyId        String    @map("provider_company_id") @db.Uuid // cross-schema ref
+
+  type                     String    @map("type") // SERVICE_PAYMENT | DEPOSIT | REFUND | DEPOSIT_RETURN
+  status                   String    @map("status") // PaymentStatus enum
+
+  // --- Amounts (integer cents) ---
+  totalAmount              Int       @map("total_amount") // cents
+  totalCurrency            String    @default("EUR") @map("total_currency") @db.VarChar(3)
+  commissionAmount         Int       @map("commission_amount") // cents
+  commissionRate           Float     @map("commission_rate") // e.g., 0.04 = 4%
+  providerNetAmount        Int       @map("provider_net_amount") // cents
+  vatAmount                Int       @map("vat_amount") // cents
+  vatRate                  Float     @map("vat_rate") // e.g., 0.19 = 19%
+
+  // --- Stripe references ---
+  stripePaymentIntentId    String?   @map("stripe_payment_intent_id")
+  stripeCheckoutSessionId  String?   @map("stripe_checkout_session_id")
+  stripeTransferId         String?   @map("stripe_transfer_id")
+
+  // --- Timestamps ---
+  initiatedAt              DateTime  @map("initiated_at")
+  completedAt              DateTime? @map("completed_at") // webhook confirmation
+  transferredAt            DateTime? @map("transferred_at") // provider payout
+
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+  createdBy                String    @map("created_by") @db.Uuid
+
+  @@index([contractId])
+  @@index([demandId])
+  @@index([providerCompanyId])
+  @@index([type])
+  @@index([status])
+  @@map("payment_transactions")
+  @@schema("payment")
+}
+
+// --- Payment Processed Events ---
+
+model PaymentProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("payment")
+}

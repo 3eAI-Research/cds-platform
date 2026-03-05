@@ -1,0 +1,67 @@
+// =============================================================================
+// Notification Schema — Event-driven notification system (Benachrichtigung)
+//
+// MVP: email only (via SMTP / Resend / SES).
+// Phase 2: push notifications, SMS, in-app.
+//
+// Architecture:
+//   Domain events → NestJS EventEmitter → NotificationService → Email
+//   Phase 2: Kafka → NotificationService (with retry/DLQ)
+//
+// Records stored for: audit trail, retry logic, delivery tracking.
+//
+// @see docs/domain-model/notification.ts
+// =============================================================================
+
+// --- Notification (Benachrichtigung) ---
+
+/// A notification record for audit and retry tracking.
+/// 13 notification types across auth, demand, contract, payment, review, provider.
+model Notification {
+  id              String    @id @default(uuid()) @db.Uuid
+  recipientUserId String    @map("recipient_user_id") @db.Uuid // cross-schema ref
+  /// @pii
+  recipientEmail  String    @map("recipient_email")
+
+  type            String    @map("type") // NotificationType enum (13 values)
+  channel         String    @default("EMAIL") @map("channel") // EMAIL (MVP) | PUSH | SMS | IN_APP (Phase 2)
+  status          String    @default("PENDING") @map("status") // PENDING | SENT | DELIVERED | FAILED
+
+  subject         String    @map("subject") // email subject line (Betreff)
+  body            String    @map("body") // HTML body
+  locale          String    @default("de") @map("locale") @db.VarChar(5)
+
+  // --- Reference to triggering domain entity ---
+  referenceType   String?   @map("reference_type") // 'demand' | 'offer' | 'contract' | 'payment'
+  referenceId     String?   @map("reference_id") @db.Uuid
+
+  // --- Read / Delivery tracking ---
+  readAt          DateTime? @map("read_at")
+  sentAt          DateTime? @map("sent_at")
+  deliveredAt     DateTime? @map("delivered_at")
+  failedAt        DateTime? @map("failed_at")
+  failureReason   String?   @map("failure_reason")
+  retryCount      Int       @default(0) @map("retry_count")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([recipientUserId])
+  @@index([type])
+  @@index([status])
+  @@index([referenceType, referenceId])
+  @@map("notifications")
+  @@schema("notification")
+}
+
+// --- Notification Processed Events ---
+
+model NotificationProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("notification")
+}

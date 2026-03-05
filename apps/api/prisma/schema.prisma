@@ -1,0 +1,32 @@
+// =============================================================================
+// CDS Platform — Prisma Schema Configuration
+//
+// Multi-file, multi-schema setup.
+// Each module has its own .prisma file and PostgreSQL schema.
+//
+// Usage:
+//   prisma generate    → generates single PrismaClient for all schemas
+//   prisma migrate dev → creates/updates all schemas
+//   prisma db seed     → runs prisma/seed.ts
+//
+// Convention:
+//   Model names: PascalCase (Prisma standard)
+//   Table names: snake_case plural (via @@map)
+//   Column names: snake_case (via @map)
+//   PII fields: marked with /// @pii comment
+//   Cross-schema refs: UUID string only, NO foreign key
+//
+// @see docs/domain-model/*.ts for TypeScript interface definitions
+// @see docs/domain-model/events.ts for event contracts
+// @see docs/plans/cds-mvp-hld.md for architecture overview
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["shared", "demand", "offer", "transport", "provider", "contract", "payment", "review", "notification"]
+}

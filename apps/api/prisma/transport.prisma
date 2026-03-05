@@ -1,0 +1,263 @@
+// =============================================================================
+// Transport Schema — Moving-specific domain data
+//
+// Owns: estates, rooms, furniture, addresses, transportation details.
+// Richest schema — contains seed data tables (227 furniture types × 6 languages).
+//
+// Seed sources:
+//   Estate.xlsx Sheet 1 → estate_types
+//   Estate.xlsx Sheet 2 → estate_part_types
+//   Estate.xlsx Sheet 3 → furniture_types
+//   Estate.xlsx Sheet 4 → estate_type_part_type_map
+//   PostCodeData.csv    → (in shared schema)
+//
+// @see docs/domain-model/estate.ts
+// @see docs/domain-model/transport.ts
+// @see docs/domain-model/address.ts
+// =============================================================================
+
+// --- Seed Data: Estate Types (Immobilientyp) ---
+
+/// 4 estate types × 6 languages: Apartment, House, Office, Warehouse
+model EstateType {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        Json    @map("name") // LocalizedText: { de: "Wohnung", en: "Apartment", ... }
+  description Json    @map("description") // LocalizedText
+  isActive    Boolean @default(true) @map("is_active")
+
+  partTypeMappings EstateTypePartTypeMap[]
+
+  @@map("estate_types")
+  @@schema("transport")
+}
+
+// --- Seed Data: Estate Part Types / Room Types (Raumtyp) ---
+
+/// 17 room types × 6 languages: Wohnzimmer, Schlafzimmer, Küche, ...
+model EstatePartType {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        Json    @map("name") // LocalizedText
+  description Json    @map("description") // LocalizedText
+  isActive    Boolean @default(true) @map("is_active")
+  /// Keller, Garten/Garage, Dachboden = outer parts (shown separately in UI)
+  isOuterPart Boolean @default(false) @map("is_outer_part")
+
+  estateTypeMappings EstateTypePartTypeMap[]
+
+  @@map("estate_part_types")
+  @@schema("transport")
+}
+
+// --- Seed Data: Estate Type ↔ Part Type Matrix ---
+
+/// Which room types are valid for which estate types.
+/// Example: "Wohnung" → all rooms except Lager and Büro
+model EstateTypePartTypeMap {
+  id              String        @id @default(uuid()) @db.Uuid
+  estateTypeId    String        @map("estate_type_id") @db.Uuid
+  estatePartTypeId String       @map("estate_part_type_id") @db.Uuid
+  isMainType      Boolean       @default(false) @map("is_main_type")
+
+  estateType      EstateType     @relation(fields: [estateTypeId], references: [id])
+  estatePartType  EstatePartType @relation(fields: [estatePartTypeId], references: [id])
+
+  @@unique([estateTypeId, estatePartTypeId])
+  @@map("estate_type_part_type_map")
+  @@schema("transport")
+}
+
+// --- Seed Data: Furniture Group Types (Möbelgruppe) ---
+
+/// Furniture categories: Teppich, Schrank, Regal, Schreibtisch, etc.
+model FurnitureGroupType {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        Json    @map("name") // LocalizedText
+  description Json    @map("description") // LocalizedText
+  isActive    Boolean @default(true) @map("is_active")
+
+  furnitureTypes FurnitureType[]
+
+  @@map("furniture_group_types")
+  @@schema("transport")
+}
+
+// --- Seed Data: Furniture Types (Möbeltyp) ---
+
+/// 227 furniture items × 6 languages with volume, assembly costs.
+/// Core of the moving industry domain: volume-based pricing (Ladevolumen).
+model FurnitureType {
+  id                   String             @id @default(uuid()) @db.Uuid
+  furnitureGroupTypeId String             @map("furniture_group_type_id") @db.Uuid
+  name                 Json               @map("name") // LocalizedText
+  description          Json               @map("description") // LocalizedText
+  isActive             Boolean            @default(true) @map("is_active")
+  volume               Float              @map("volume") // cubic meters (m³)
+  assemblable          Boolean            @default(false) @map("assemblable") // zerlegbar
+  disassembleCost      Int?               @map("disassemble_cost") // EUR cents (Demontagekosten)
+  assembleCost         Int?               @map("assemble_cost") // EUR cents (Montagekosten)
+  flatRate             Int?               @map("flat_rate") // EUR cents (Pauschalpreis)
+  calculationType      String             @default("COUNT") @map("calculation_type") // COUNT | LINEAR_METER
+
+  furnitureGroupType   FurnitureGroupType @relation(fields: [furnitureGroupTypeId], references: [id])
+
+  @@index([furnitureGroupTypeId])
+  @@map("furniture_types")
+  @@schema("transport")
+}
+
+// --- Instance Data: Address (Adresse) ---
+
+/// Physical address in German format: Straße + Hausnummer + PLZ + Ort
+model Address {
+  id             String  @id @default(uuid()) @db.Uuid
+  /// @pii
+  street         String  @map("street")
+  /// @pii
+  houseNumber    String  @map("house_number")
+  postCode       String  @map("post_code") @db.VarChar(10)
+  placeName      String  @map("place_name")
+  countryCode    String  @default("DE") @map("country_code") @db.VarChar(3)
+  additionalInfo String? @map("additional_info")
+  floor          Int?    @map("floor")
+
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdBy      String   @map("created_by") @db.Uuid
+
+  transportationsFrom Transportation[] @relation("from_address")
+  transportationsTo   Transportation[] @relation("to_address")
+
+  @@index([postCode])
+  @@map("addresses")
+  @@schema("transport")
+}
+
+// --- Instance Data: Estate (Konkrete Immobilie) ---
+
+/// A specific property being moved from/to.
+/// German-specific features: Keller, Dachboden, Trageweg, Halteverbot.
+model Estate {
+  id                       String    @id @default(uuid()) @db.Uuid
+  estateTypeId             String    @map("estate_type_id") @db.Uuid
+  addressId                String    @map("address_id") @db.Uuid
+  totalSquareMeters        Float     @map("total_square_meters")
+  numberOfFloors           Int       @default(1) @map("number_of_floors")
+  numberOfRooms            Int       @map("number_of_rooms")
+  elevatorType             String    @default("NONE") @map("elevator_type") // NONE | PERSONAL | FREIGHT
+  walkingWayMeters         Float     @default(0) @map("walking_way_meters") // Trageweg
+
+  // German-specific services
+  halteverbotRequired      Boolean   @default(false) @map("halteverbot_required")
+  furnitureMontage         Boolean   @default(false) @map("furniture_montage") // Möbelmontage
+  kitchenMontage           Boolean   @default(false) @map("kitchen_montage") // Küchenmontage
+  packingService           Boolean   @default(false) @map("packing_service") // Verpackungsservice
+
+  // Outer parts (Außenbereiche)
+  hasCellar                Boolean   @default(false) @map("has_cellar") // Keller
+  cellarSquareMeters       Float?    @map("cellar_square_meters")
+  hasLoft                  Boolean   @default(false) @map("has_loft") // Dachboden
+  loftSquareMeters         Float?    @map("loft_square_meters")
+  hasGardenGarage          Boolean   @default(false) @map("has_garden_garage")
+  gardenGarageSquareMeters Float?    @map("garden_garage_square_meters")
+
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+  createdBy                String    @map("created_by") @db.Uuid
+
+  parts                    EstatePart[]
+  transportationsFrom      Transportation[] @relation("from_estate")
+  transportationsTo        Transportation[] @relation("to_estate")
+
+  @@map("estates")
+  @@schema("transport")
+}
+
+// --- Instance Data: Estate Part / Room (Raum) ---
+
+/// A room within an estate, with its furniture inventory.
+/// Flattened from OAK's 3-level nesting (Estate→Flats→Parts→Furniture → Estate→Parts→Furniture).
+model EstatePart {
+  id               String   @id @default(uuid()) @db.Uuid
+  estateId         String   @map("estate_id") @db.Uuid
+  estatePartTypeId String   @map("estate_part_type_id") @db.Uuid
+  customName       String?  @map("custom_name") // e.g., "Schlafzimmer 2"
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  estate           Estate         @relation(fields: [estateId], references: [id], onDelete: Cascade)
+  furnitureItems   FurnitureItem[]
+
+  @@index([estateId])
+  @@map("estate_parts")
+  @@schema("transport")
+}
+
+// --- Instance Data: Furniture Item (Möbelstück) ---
+
+/// A specific furniture item in a room.
+/// quantity = count (3 chairs) or linear meters (2.5m bookshelf)
+model FurnitureItem {
+  id               String  @id @default(uuid()) @db.Uuid
+  estatePartId     String  @map("estate_part_id") @db.Uuid
+  furnitureTypeId  String  @map("furniture_type_id") @db.Uuid
+  quantity         Float   @map("quantity") // count or linear meters
+  calculatedVolume Float?  @map("calculated_volume") // furnitureType.volume × quantity
+
+  estatePart       EstatePart @relation(fields: [estatePartId], references: [id], onDelete: Cascade)
+
+  @@index([estatePartId])
+  @@map("furniture_items")
+  @@schema("transport")
+}
+
+// --- Instance Data: Transportation (Umzugstransport) ---
+
+/// The physical moving operation: from/to estates, schedule, volume.
+model Transportation {
+  id                  String    @id @default(uuid()) @db.Uuid
+  transportType       String    @map("transport_type") // LOCAL | LONG_DISTANCE | INTERNATIONAL | COMMERCIAL
+  status              String    @default("PLANNED") @map("status") // TransportStatus enum
+
+  // From / To references
+  fromEstateId        String    @map("from_estate_id") @db.Uuid
+  toEstateId          String    @map("to_estate_id") @db.Uuid
+  fromAddressId       String    @map("from_address_id") @db.Uuid
+  toAddressId         String    @map("to_address_id") @db.Uuid
+
+  // Schedule
+  numberOfPeople      Int       @map("number_of_people")
+  preferredDateStart  DateTime  @map("preferred_date_start")
+  preferredDateEnd    DateTime  @map("preferred_date_end")
+  dateFlexibility     Boolean   @default(false) @map("date_flexibility")
+
+  // Calculated values
+  estimatedVolume     Float     @default(0) @map("estimated_volume") // m³
+  estimatedDistanceKm Float     @default(0) @map("estimated_distance_km")
+
+  additionalInfo      String?   @map("additional_info")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdBy           String    @map("created_by") @db.Uuid
+
+  fromEstate          Estate    @relation("from_estate", fields: [fromEstateId], references: [id])
+  toEstate            Estate    @relation("to_estate", fields: [toEstateId], references: [id])
+  fromAddress         Address   @relation("from_address", fields: [fromAddressId], references: [id])
+  toAddress           Address   @relation("to_address", fields: [toAddressId], references: [id])
+
+  @@map("transportations")
+  @@schema("transport")
+}
+
+// --- Transport Processed Events ---
+
+model TransportProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("transport")
+}

@@ -1,0 +1,49 @@
+// =============================================================================
+// Demand Schema — Customer moving requests
+//
+// Demand module orchestrates creation flow but does NOT own estate/transport.
+// Cross-module refs: transportationId, acceptedOfferId — UUID only, no FK.
+//
+// @see docs/domain-model/demand.ts
+// =============================================================================
+
+model Demand {
+  id                String    @id @default(uuid()) @db.Uuid
+  customerUserId    String    @map("customer_user_id") @db.Uuid // cross-schema ref → shared.user_references
+  status            String    @map("status") // DemandStatus enum
+  serviceType       String    @map("service_type") // DemandServiceType enum
+  transportationId  String    @map("transportation_id") @db.Uuid // cross-schema ref → transport.transportations
+  acceptedOfferId   String?   @map("accepted_offer_id") @db.Uuid // cross-schema ref → offer.offers
+  additionalNotes   String?   @map("additional_notes")
+  preferredLocale   String    @default("de") @map("preferred_locale") @db.VarChar(5)
+  expiresAt         DateTime? @map("expires_at")
+  offerCount        Int       @default(0) @map("offer_count") // denormalized from offer events
+
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdBy         String    @map("created_by") @db.Uuid
+  deletedAt         DateTime? @map("deleted_at")
+
+  // GDPR audit (AuditableEntity)
+  lastAccessedAt    DateTime? @map("last_accessed_at")
+  lastAccessedBy    String?   @map("last_accessed_by") @db.Uuid
+
+  @@index([customerUserId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([status, createdAt]) // marketplace listing query optimization
+  @@map("demands")
+  @@schema("demand")
+}
+
+// --- Demand Processed Events ---
+
+model DemandProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("demand")
+}

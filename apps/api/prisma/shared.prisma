@@ -1,0 +1,94 @@
+// =============================================================================
+// Shared Schema — Cross-module reference data
+//
+// Minimal shared kernel (D-011): only ID refs, enums, lookups.
+// Auth module is the SOLE WRITER to user_references (via events).
+// All other modules READ ONLY.
+//
+// @see docs/domain-model/core-types.ts
+// @see docs/domain-model/address.ts (Country, PostCodeData)
+// =============================================================================
+
+// --- User References (denormalized from Keycloak) ---
+
+/// Denormalized user info — auth module writes via events, others read-only.
+model UserReference {
+  userId      String   @id @map("user_id") @db.Uuid
+  /// @pii
+  email       String   @map("email")
+  /// @pii
+  displayName String   @map("display_name")
+  role        String   @map("role") // 'customer' | 'provider' | 'admin'
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("user_references")
+  @@schema("shared")
+}
+
+// --- GDPR Consent Records ---
+
+/// Tracks user consent for GDPR compliance.
+/// Who consented to what, when, and from which IP.
+model ConsentRecord {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  consentType String   @map("consent_type") // TERMS_OF_SERVICE, PRIVACY_POLICY, COOKIE_ANALYTICS, MARKETING_EMAIL
+  granted     Boolean  @map("granted")
+  grantedAt   DateTime @map("granted_at")
+  ipAddress   String   @map("ip_address")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("consent_records")
+  @@schema("shared")
+}
+
+// --- Country Lookup (seed: Country.csv) ---
+
+/// Country reference data — ~200 countries.
+/// Seed source: Umzug/MainDocuments/Country.csv
+model Country {
+  id            String  @id @default(uuid()) @db.Uuid
+  isoCode       String  @unique @map("iso_code") @db.VarChar(3)
+  name          String  @map("name")
+  localizedName Json    @map("localized_name") // { de: "Deutschland", en: "Germany" }
+  phoneCode     String? @map("phone_code")
+  isActive      Boolean @default(true) @map("is_active")
+
+  @@map("countries")
+  @@schema("shared")
+}
+
+// --- PostCode Lookup (seed: PostCodeData.csv) ---
+
+/// German PLZ database with geo-coordinates.
+/// Seed source: Umzug/MainDocuments/PostCodeData.csv (~8,200 records for DE)
+model PostCode {
+  id           String  @id @default(uuid()) @db.Uuid
+  countryCode  String  @map("country_code") @db.VarChar(3)
+  postCode     String  @map("post_code") @db.VarChar(10)
+  placeName    String  @map("place_name")
+  adminName1   String? @map("admin_name_1") // Bundesland
+  adminName2   String? @map("admin_name_2") // Regierungsbezirk
+  adminName3   String? @map("admin_name_3") // Kreis
+  latitude     Float   @map("latitude")
+  longitude    Float   @map("longitude")
+
+  @@unique([countryCode, postCode])
+  @@index([postCode])
+  @@map("post_codes")
+  @@schema("shared")
+}
+
+// --- Shared Processed Events (idempotency) ---
+
+model SharedProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("shared")
+}

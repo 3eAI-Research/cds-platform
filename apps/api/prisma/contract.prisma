@@ -1,0 +1,94 @@
+// =============================================================================
+// Contract Schema — Digital service contracts (Dienstleistungsvertrag)
+//
+// CDS differentiator: legally-structured contracts, not just "accept offer" buttons.
+// MVP: mutual acceptance + timestamped PDF.
+// Phase 1.5: qualified e-signature (eIDAS compliant).
+//
+// Flow: Offer accepted → DRAFT → Customer accepts → Provider accepts → ACTIVE → PDF generated
+//
+// @see docs/domain-model/contract.ts
+// =============================================================================
+
+// --- Contract (Vertrag) ---
+
+/// A service contract between customer and provider.
+/// Both parties must accept before the contract becomes ACTIVE.
+model Contract {
+  id                  String    @id @default(uuid()) @db.Uuid
+  demandId            String    @map("demand_id") @db.Uuid // cross-schema ref → demand.demands
+  offerId             String    @map("offer_id") @db.Uuid // cross-schema ref → offer.offers
+
+  customerUserId      String    @map("customer_user_id") @db.Uuid // cross-schema ref
+  providerUserId      String    @map("provider_user_id") @db.Uuid // cross-schema ref
+  providerCompanyId   String    @map("provider_company_id") @db.Uuid // cross-schema ref → provider.provider_companies
+
+  status              String    @map("status") // ContractStatus enum
+
+  // --- Contract Terms (Vertragsbedingungen) ---
+  agreedPriceAmount   Int       @map("agreed_price_amount") // EUR cents
+  agreedPriceCurrency String    @default("EUR") @map("agreed_price_currency") @db.VarChar(3)
+  commissionAmount    Int       @map("commission_amount") // EUR cents
+  commissionCurrency  String    @default("EUR") @map("commission_currency") @db.VarChar(3)
+  vatAmount           Int       @map("vat_amount") // EUR cents
+  vatCurrency         String    @default("EUR") @map("vat_currency") @db.VarChar(3)
+
+  serviceDate         DateTime  @map("service_date") // Vereinbarter Umzugstermin
+  serviceDescription  String    @map("service_description") // auto-generated summary
+
+  // --- Acceptance timestamps ---
+  customerAcceptedAt  DateTime? @map("customer_accepted_at")
+  providerAcceptedAt  DateTime? @map("provider_accepted_at")
+
+  // --- PDF Document ---
+  pdfStorageKey       String?   @map("pdf_storage_key") // S3/MinIO path
+  pdfGeneratedAt      DateTime? @map("pdf_generated_at")
+
+  // --- Cancellation ---
+  cancelledBy         String?   @map("cancelled_by") @db.Uuid
+  cancelledAt         DateTime? @map("cancelled_at")
+  cancellationReason  String?   @map("cancellation_reason")
+
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdBy           String    @map("created_by") @db.Uuid
+  deletedAt           DateTime? @map("deleted_at")
+
+  @@unique([offerId]) // one contract per accepted offer
+  @@index([demandId])
+  @@index([customerUserId])
+  @@index([providerCompanyId])
+  @@index([status])
+  @@map("contracts")
+  @@schema("contract")
+}
+
+// --- Contract Template (Vertragsvorlage) ---
+
+/// Template for generating contract PDFs. MVP: one per locale.
+model ContractTemplate {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @map("name")
+  locale       String   @map("locale") @db.VarChar(5) // e.g., 'de'
+  htmlTemplate String   @map("html_template") // HTML with placeholders
+  isDefault    Boolean  @default(false) @map("is_default")
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([locale, isDefault])
+  @@map("contract_templates")
+  @@schema("contract")
+}
+
+// --- Contract Processed Events ---
+
+model ContractProcessedEvent {
+  idempotencyKey String   @id @map("idempotency_key")
+  eventId        String   @map("event_id") @db.Uuid
+  eventType      String   @map("event_type")
+  processedAt    DateTime @default(now()) @map("processed_at")
+
+  @@map("processed_events")
+  @@schema("contract")
+}
