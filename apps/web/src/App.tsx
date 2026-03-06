@@ -77,19 +77,19 @@ function useRoleResources(): ResourceProps[] {
         {
           name: "admin-providers",
           list: "/admin/providers",
-          meta: { label: "Firma-Genehmigungen", icon: <AuditOutlined /> },
+          meta: { label: "Genehmigungen", icon: <AuditOutlined /> },
         },
         {
           name: "providers",
           list: "/providers",
           show: "/providers/:id",
-          meta: { label: "Alle Firmen", icon: <TeamOutlined /> },
+          meta: { label: "Firmen", icon: <TeamOutlined /> },
         },
         {
           name: "demands",
           list: "/demands",
           show: "/demands/:id",
-          meta: { label: "Alle Anfragen", icon: <UnorderedListOutlined /> },
+          meta: { label: "Anfragen", icon: <UnorderedListOutlined /> },
         },
         contracts,
         {
@@ -213,7 +213,11 @@ function App() {
                 <Route
                   element={
                     <Authenticated key="auth-pages" fallback={<Outlet />}>
-                      <NavigateToResource resource="demands" />
+                      <NavigateToResource resource={
+                        localStorage.getItem("cds-role") === "admin"
+                          ? "admin-providers"
+                          : "demands"
+                      } />
                     </Authenticated>
                   }
                 >

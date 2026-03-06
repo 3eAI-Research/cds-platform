@@ -6,6 +6,18 @@ import { NotificationBell } from "./notification-bell";
 
 const { Text } = Typography;
 
+const roleColors: Record<string, string> = {
+  admin: "red",
+  provider_owner: "green",
+  customer: "blue",
+};
+
+const roleLabels: Record<string, string> = {
+  admin: "Admin",
+  provider_owner: "Provider",
+  customer: "Customer",
+};
+
 export const AppHeader = () => {
   const { data: identity } = useGetIdentity<{
     name: string;
@@ -13,9 +25,9 @@ export const AppHeader = () => {
     email: string;
   }>();
   const { mutate: logout } = useLogout();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
-  const isProvider = identity?.role === "provider_owner";
+  const role = identity?.role ?? "customer";
 
   const handleLangChange = (lang: string | number) => {
     const langStr = String(lang);
@@ -44,17 +56,16 @@ export const AppHeader = () => {
           onChange={handleLangChange}
         />
         <NotificationBell />
-        <Tag color={isProvider ? "green" : "blue"}>
-          {isProvider ? t("auth.provider") : t("auth.customer")}
+        <Tag color={roleColors[role] ?? "blue"}>
+          {roleLabels[role] ?? role}
         </Tag>
         <Text>{identity?.name}</Text>
         <Button
           size="small"
           icon={<SwapOutlined />}
           onClick={() => logout()}
-          title={t("auth.switchRole")}
         >
-          {t("auth.switchRole")}
+          Switch role
         </Button>
         <Button
           size="small"

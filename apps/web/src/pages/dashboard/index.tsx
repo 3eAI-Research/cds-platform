@@ -7,8 +7,12 @@ import {
   DollarOutlined,
   PlusOutlined,
   ArrowRightOutlined,
+  AuditOutlined,
+  TeamOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useCustom } from "@refinedev/core";
 
 const { Title, Text } = Typography;
 
@@ -19,7 +23,9 @@ export const DashboardPage = () => {
     role: string;
   }>();
 
-  const isProvider = identity?.role === "provider_owner";
+  const role = identity?.role ?? "customer";
+  const isProvider = role === "provider_owner";
+  const isAdmin = role === "admin";
 
   const { data: demandsData } = useList({
     resource: "demands",
@@ -31,9 +37,119 @@ export const DashboardPage = () => {
     pagination: { pageSize: 1 },
   });
 
+  // Admin: fetch pending providers count
+  const { data: pendingData } = useCustom({
+    url: "/providers",
+    method: "get",
+    config: {
+      query: { status: "PENDING", pageSize: 1 },
+      headers: { "X-User-Role": "admin" },
+    },
+    queryOptions: { enabled: isAdmin },
+  });
+
   const demandTotal = demandsData?.total ?? 0;
   const contractTotal = contractsData?.total ?? 0;
+  const pendingProviders = (pendingData?.data as any)?.total ?? 0;
 
+  // --- Admin Dashboard ---
+  if (isAdmin) {
+    return (
+      <div style={{ padding: 24 }}>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Title level={4} style={{ margin: 0 }}>
+              Admin Dashboard
+            </Title>
+            <Text type="secondary">
+              Plattform-Verwaltung
+            </Text>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable onClick={() => navigate("/admin/providers")}>
+              <Statistic
+                title="Ausstehende Genehmigungen"
+                value={pendingProviders}
+                prefix={<AuditOutlined style={{ color: "#fa541c" }} />}
+                valueStyle={pendingProviders > 0 ? { color: "#fa541c" } : undefined}
+              />
+              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
+                Prüfen <ArrowRightOutlined />
+              </Button>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable onClick={() => navigate("/providers")}>
+              <Statistic
+                title="Firmen"
+                value="—"
+                prefix={<TeamOutlined style={{ color: "#52c41a" }} />}
+              />
+              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
+                Alle anzeigen <ArrowRightOutlined />
+              </Button>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable onClick={() => navigate("/demands")}>
+              <Statistic
+                title="Anfragen"
+                value={demandTotal}
+                prefix={<FileTextOutlined style={{ color: "#1890ff" }} />}
+              />
+              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
+                Alle anzeigen <ArrowRightOutlined />
+              </Button>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={12} lg={6}>
+            <Card hoverable onClick={() => navigate("/contracts")}>
+              <Statistic
+                title="Verträge"
+                value={contractTotal}
+                prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
+              />
+              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
+                Alle anzeigen <ArrowRightOutlined />
+              </Button>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card>
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Text strong>Schnellaktionen</Text>
+                <Button
+                  block
+                  icon={<AuditOutlined />}
+                  onClick={() => navigate("/admin/providers")}
+                >
+                  Firmen prüfen
+                </Button>
+                <Button
+                  block
+                  icon={<WalletOutlined />}
+                  onClick={() => navigate("/payments")}
+                >
+                  Zahlungen
+                </Button>
+              </Space>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
+  // --- Customer / Provider Dashboard ---
   return (
     <div style={{ padding: 24 }}>
       <Row justify="space-between" align="middle">
@@ -73,10 +189,7 @@ export const DashboardPage = () => {
 
       <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
         <Col xs={24} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => navigate("/demands")}
-          >
+          <Card hoverable onClick={() => navigate("/demands")}>
             <Statistic
               title={isProvider ? "Marktplatz-Anfragen" : "Meine Anfragen"}
               value={demandTotal}
@@ -88,11 +201,7 @@ export const DashboardPage = () => {
                 )
               }
             />
-            <Button
-              type="link"
-              size="small"
-              style={{ padding: 0, marginTop: 8 }}
-            >
+            <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
               Alle anzeigen <ArrowRightOutlined />
             </Button>
           </Card>
@@ -100,20 +209,13 @@ export const DashboardPage = () => {
 
         {isProvider && (
           <Col xs={24} sm={12} lg={6}>
-            <Card
-              hoverable
-              onClick={() => navigate("/offers")}
-            >
+            <Card hoverable onClick={() => navigate("/offers")}>
               <Statistic
                 title="Meine Angebote"
                 value="—"
                 prefix={<DollarOutlined style={{ color: "#fa8c16" }} />}
               />
-              <Button
-                type="link"
-                size="small"
-                style={{ padding: 0, marginTop: 8 }}
-              >
+              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
                 Angebote ansehen <ArrowRightOutlined />
               </Button>
             </Card>
@@ -121,20 +223,13 @@ export const DashboardPage = () => {
         )}
 
         <Col xs={24} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => navigate("/contracts")}
-          >
+          <Card hoverable onClick={() => navigate("/contracts")}>
             <Statistic
               title="Verträge"
               value={contractTotal}
               prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
             />
-            <Button
-              type="link"
-              size="small"
-              style={{ padding: 0, marginTop: 8 }}
-            >
+            <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
               Verträge ansehen <ArrowRightOutlined />
             </Button>
           </Card>
