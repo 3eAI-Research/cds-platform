@@ -21,6 +21,7 @@ import { ReviewModule } from './modules/review/review.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CreditModule } from './modules/credit/credit.module';
 import { StripeModule } from './modules/stripe/stripe.module';
+import { AgentModule } from './modules/agent/agent.module';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -51,6 +52,7 @@ import { EventsModule } from './events/events.module';
     NotificationModule,
     CreditModule,
     StripeModule,
+    AgentModule,
 
     // --- Cross-cutting Event Handlers ---
     EventsModule,
