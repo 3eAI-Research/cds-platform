@@ -1,7 +1,7 @@
 -- =============================================================================
 -- CDS Platform — PostgreSQL Schema Initialization
 --
--- Creates the 9 PostgreSQL schemas used by Prisma multi-schema.
+-- Creates the 11 PostgreSQL schemas used by Prisma multi-schema.
 -- This runs automatically on first `docker compose up`.
 -- Prisma migrations will create tables within these schemas.
 -- =============================================================================
@@ -15,3 +15,5 @@ CREATE SCHEMA IF NOT EXISTS contract;
 CREATE SCHEMA IF NOT EXISTS payment;
 CREATE SCHEMA IF NOT EXISTS review;
 CREATE SCHEMA IF NOT EXISTS notification;
+CREATE SCHEMA IF NOT EXISTS agent;
+CREATE SCHEMA IF NOT EXISTS credit;
