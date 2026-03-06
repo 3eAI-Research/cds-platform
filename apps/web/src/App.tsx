@@ -20,6 +20,8 @@ import {
   TeamOutlined,
   UnorderedListOutlined,
   WalletOutlined,
+  RobotOutlined,
+  CreditCardOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -51,6 +53,8 @@ const PaymentList = lazy(() => import("./pages/payments/list"));
 // Admin pages
 const PendingProviders = lazy(() => import("./pages/admin/pending-providers"));
 const ProviderReviewPage = lazy(() => import("./pages/admin/provider-review"));
+const AgentSessions = lazy(() => import("./pages/admin/agent-sessions"));
+const CreditOverview = lazy(() => import("./pages/admin/credit-overview"));
 
 const PageLoader = () => (
   <div style={{ display: "flex", justifyContent: "center", padding: 64 }}>
@@ -75,6 +79,16 @@ function useRoleResources(): ResourceProps[] {
 
     if (isAdmin) {
       return [
+        {
+          name: "admin-agent-sessions",
+          list: "/admin/agent-sessions",
+          meta: { label: t("admin.agentSessions"), icon: <RobotOutlined /> },
+        },
+        {
+          name: "admin-credits",
+          list: "/admin/credits",
+          meta: { label: t("admin.creditOverview"), icon: <CreditCardOutlined /> },
+        },
         {
           name: "admin-providers",
           list: "/admin/providers",
@@ -249,6 +263,8 @@ function App() {
                     <Route index element={<PendingProviders />} />
                     <Route path=":id" element={<ProviderReviewPage />} />
                   </Route>
+                  <Route path="/admin/agent-sessions" element={<AgentSessions />} />
+                  <Route path="/admin/credits" element={<CreditOverview />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
 
