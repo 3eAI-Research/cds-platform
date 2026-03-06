@@ -20,6 +20,7 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { ReviewModule } from './modules/review/review.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CreditModule } from './modules/credit/credit.module';
+import { StripeModule } from './modules/stripe/stripe.module';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -49,6 +50,7 @@ import { EventsModule } from './events/events.module';
     ReviewModule,
     NotificationModule,
     CreditModule,
+    StripeModule,
 
     // --- Cross-cutting Event Handlers ---
     EventsModule,
