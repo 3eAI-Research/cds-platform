@@ -347,4 +347,29 @@ export const tr = {
     selected: "seçildi",
     assemblable: "monte edilebilir",
   },
+  agent: {
+    welcome:
+      "Merhaba! Ben tasinma asistaninizsim. Tasinmanizi anlatın — nereden nereye tasiniyorsunuz?",
+    send: "Gonder",
+    uploadPhotos: "Oda fotograflari yukle",
+    typing: "Dusunuyor...",
+    summary: "Tasinma Ozeti",
+    confirmDemand: "Onayla & Talep Olustur",
+    generateReport: "Rapor Olustur",
+    reportCost: "1 kredi",
+    cancel: "Iptal",
+    sessionExpired:
+      "Oturum suresi doldu. Lutfen yeni bir talep baslatin.",
+    credits: "Krediler",
+    buyCredits: "Kredi Satin Al",
+    creditBalance: "Kredi Bakiyesi",
+    starterPack: "Baslangic",
+    standardPack: "Standart",
+    proPack: "Pro",
+    photoAnalysis: "Fotograf Analizi",
+    photoHint:
+      "Otomatik mobilya tespiti icin oda fotograflarinizi yukleyin",
+    detected: "tespit edildi",
+    manualForm: "Manuel forma gec",
+  },
 };

@@ -3,6 +3,7 @@ import { Button, Space, Tag, Typography, Select } from "antd";
 import { LogoutOutlined, SwapOutlined, GlobalOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./notification-bell";
+import { CreditBalance } from "./chat/credit-balance";
 import { SUPPORTED_LANGUAGES } from "../i18n";
 
 const { Text } = Typography;
@@ -60,6 +61,7 @@ export const AppHeader = () => {
           }))}
         />
         <NotificationBell />
+        {role === "customer" && <CreditBalance />}
         <Tag color={roleColors[role] ?? "blue"}>
           {getRoleLabels(t)[role] ?? role}
         </Tag>

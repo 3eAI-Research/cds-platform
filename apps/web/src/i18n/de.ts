@@ -347,4 +347,29 @@ export const de = {
     selected: "ausgewählt",
     assemblable: "montierbar",
   },
+  agent: {
+    welcome:
+      "Hallo! Ich bin Ihr Umzugsassistent. Erzählen Sie mir von Ihrem Umzug — wohin ziehen Sie um und woher?",
+    send: "Senden",
+    uploadPhotos: "Raumfotos hochladen",
+    typing: "Einen Moment...",
+    summary: "Umzugsübersicht",
+    confirmDemand: "Bestätigen & Anfrage erstellen",
+    generateReport: "Bericht erstellen",
+    reportCost: "1 Kredit",
+    cancel: "Abbrechen",
+    sessionExpired:
+      "Sitzung abgelaufen. Bitte starten Sie eine neue Anfrage.",
+    credits: "Kredite",
+    buyCredits: "Kredite kaufen",
+    creditBalance: "Kreditguthaben",
+    starterPack: "Starter",
+    standardPack: "Standard",
+    proPack: "Pro",
+    photoAnalysis: "Fotoanalyse",
+    photoHint:
+      "Laden Sie Fotos Ihrer Räume hoch, um Möbel automatisch zu erkennen",
+    detected: "erkannt",
+    manualForm: "Zum manuellen Formular wechseln",
+  },
 };

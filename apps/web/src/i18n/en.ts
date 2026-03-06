@@ -347,4 +347,28 @@ export const en = {
     selected: "selected",
     assemblable: "assemblable",
   },
+  agent: {
+    welcome:
+      "Hi! I'm your moving assistant. Tell me about your move — where are you moving from and to?",
+    send: "Send",
+    uploadPhotos: "Upload room photos",
+    typing: "Thinking...",
+    summary: "Moving Summary",
+    confirmDemand: "Confirm & Create Request",
+    generateReport: "Generate Report",
+    reportCost: "1 credit",
+    cancel: "Cancel",
+    sessionExpired: "Session expired. Please start a new request.",
+    credits: "Credits",
+    buyCredits: "Buy Credits",
+    creditBalance: "Credit Balance",
+    starterPack: "Starter",
+    standardPack: "Standard",
+    proPack: "Pro",
+    photoAnalysis: "Photo Analysis",
+    photoHint:
+      "Upload photos of your rooms for automatic furniture detection",
+    detected: "detected",
+    manualForm: "Switch to manual form",
+  },
 };
