@@ -156,4 +156,39 @@ export class StripeService {
 
     return { received: true };
   }
+
+  /**
+   * Get all payment transactions (admin).
+   */
+  async getAllTransactions(page: number | string, pageSize: number | string) {
+    const p = Number(page) || 1;
+    const ps = Number(pageSize) || 50;
+    const skip = (p - 1) * ps;
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.creditPaymentTransaction.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: ps,
+      }),
+      this.prisma.creditPaymentTransaction.count(),
+    ]);
+
+    return {
+      items: items.map((t) => ({
+        id: t.id,
+        userId: t.userId,
+        packName: t.packId,
+        amount: t.amountCents,
+        credits: t.credits,
+        status: t.status,
+        stripeSessionId: t.stripeSessionId,
+        createdAt: t.createdAt,
+      })),
+      total,
+      page: p,
+      pageSize: ps,
+      totalPages: Math.ceil(total / ps),
+    };
+  }
 }

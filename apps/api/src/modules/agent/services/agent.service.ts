@@ -394,6 +394,46 @@ export class AgentService {
 
   // ─── Cancel Session ──────────────────────────────────────────────────────────
 
+  /**
+   * Get all agent sessions (admin).
+   */
+  async getAllSessions(page: number | string, pageSize: number | string) {
+    const p = Number(page) || 1;
+    const ps = Number(pageSize) || 50;
+    const skip = (p - 1) * ps;
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.agentSession.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: ps,
+        include: { messages: { orderBy: { createdAt: 'asc' } } },
+      }),
+      this.prisma.agentSession.count(),
+    ]);
+
+    return {
+      items: items.map((s) => ({
+        id: s.id,
+        userId: s.userId,
+        state: s.state,
+        messageCount: s.messageCount,
+        photoCount: s.photoCount,
+        createdAt: s.createdAt,
+        messages: s.messages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          createdAt: m.createdAt,
+        })),
+      })),
+      total,
+      page: p,
+      pageSize: ps,
+      totalPages: Math.ceil(total / ps),
+    };
+  }
+
   async cancelSession(sessionId: string, userId: string): Promise<void> {
     const session = await this.loadAndValidateSession(sessionId, userId);
 

@@ -5,6 +5,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   Res,
   ParseUUIDPipe,
   UseInterceptors,
@@ -29,6 +30,20 @@ export class AgentController {
     private readonly agentService: AgentService,
     private readonly reportService: ReportService,
   ) {}
+
+  /**
+   * GET /api/v1/agent/admin/sessions
+   * List all agent sessions (admin only).
+   */
+  @ApiOperation({ summary: 'List all agent sessions (admin)' })
+  @Roles('admin')
+  @Get('admin/sessions')
+  async getAdminSessions(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return this.agentService.getAllSessions(page ?? 1, pageSize ?? 50);
+  }
 
   /**
    * POST /api/v1/agent/sessions

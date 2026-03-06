@@ -38,4 +38,18 @@ export class CreditController {
       query.pageSize ?? 20,
     );
   }
+
+  /**
+   * GET /api/v1/credits/admin/balances
+   * List all user credit balances (admin only).
+   */
+  @ApiOperation({ summary: 'List all user credit balances (admin)' })
+  @Roles('admin')
+  @Get('admin/balances')
+  async getAdminBalances(@Query() query: ListTransactionsDto) {
+    return this.creditService.getAllBalances(
+      query.page ?? 1,
+      query.pageSize ?? 50,
+    );
+  }
 }

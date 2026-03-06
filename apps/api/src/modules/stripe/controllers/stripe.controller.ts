@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Req,
+  Query,
   HttpCode,
   HttpStatus,
   BadRequestException,
@@ -67,5 +68,19 @@ export class StripeController {
     }
 
     return this.stripeService.handleWebhook(rawBody, signature);
+  }
+
+  /**
+   * GET /api/v1/payments/admin/transactions
+   * List all payment transactions (admin only).
+   */
+  @ApiOperation({ summary: 'List all payment transactions (admin)' })
+  @Roles('admin')
+  @Get('admin/transactions')
+  async getAdminTransactions(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return this.stripeService.getAllTransactions(page ?? 1, pageSize ?? 50);
   }
 }

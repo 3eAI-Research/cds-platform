@@ -104,6 +104,32 @@ export class CreditService {
   }
 
   /**
+   * Get all user credit balances (admin).
+   */
+  async getAllBalances(page: number | string, pageSize: number | string) {
+    const p = Number(page) || 1;
+    const ps = Number(pageSize) || 50;
+    const skip = (p - 1) * ps;
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.credit.findMany({
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take: ps,
+      }),
+      this.prisma.credit.count(),
+    ]);
+
+    return {
+      items,
+      total,
+      page: p,
+      pageSize: ps,
+      totalPages: Math.ceil(total / ps),
+    };
+  }
+
+  /**
    * Get paginated credit ledger transactions for a user.
    */
   async getTransactions(userId: string, page: number, pageSize: number) {
