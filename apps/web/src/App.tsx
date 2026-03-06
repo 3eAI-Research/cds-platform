@@ -80,16 +80,6 @@ function useRoleResources(): ResourceProps[] {
     if (isAdmin) {
       return [
         {
-          name: "admin-agent-sessions",
-          list: "/admin/agent-sessions",
-          meta: { label: t("admin.agentSessions"), icon: <RobotOutlined /> },
-        },
-        {
-          name: "admin-credits",
-          list: "/admin/credits",
-          meta: { label: t("admin.creditOverview"), icon: <CreditCardOutlined /> },
-        },
-        {
           name: "admin-providers",
           list: "/admin/providers",
           meta: { label: t("admin.pendingProviders"), icon: <AuditOutlined /> },
@@ -111,6 +101,16 @@ function useRoleResources(): ResourceProps[] {
           name: "payments",
           list: "/payments",
           meta: { label: t("nav.payments"), icon: <WalletOutlined /> },
+        },
+        {
+          name: "admin-agent-sessions",
+          list: "/admin/agent-sessions",
+          meta: { label: t("admin.agentSessions"), icon: <RobotOutlined /> },
+        },
+        {
+          name: "admin-credits",
+          list: "/admin/credits",
+          meta: { label: t("admin.creditOverview"), icon: <CreditCardOutlined /> },
         },
       ];
     }
