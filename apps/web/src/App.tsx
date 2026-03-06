@@ -3,7 +3,6 @@ import {
   useNotificationProvider,
   ThemedLayoutV2,
   ErrorComponent,
-  RefineThemes,
 } from "@refinedev/antd";
 import routerProvider, {
   NavigateToResource,
@@ -11,7 +10,7 @@ import routerProvider, {
   DocumentTitleHandler,
 } from "@refinedev/react-router-v6";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
-import { ConfigProvider, App as AntdApp, Spin } from "antd";
+import { ConfigProvider, App as AntdApp, Spin, theme } from "antd";
 import {
   FileTextOutlined,
   FileProtectOutlined,
@@ -23,6 +22,7 @@ import {
   WalletOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import "@refinedev/antd/dist/reset.css";
 import type { ResourceProps } from "@refinedev/core";
 
@@ -59,6 +59,7 @@ const PageLoader = () => (
 );
 
 function useRoleResources(): ResourceProps[] {
+  const { t } = useTranslation();
   const role = localStorage.getItem("cds-role") || "customer";
   const isProvider = role === "provider";
   const isAdmin = role === "admin";
@@ -69,7 +70,7 @@ function useRoleResources(): ResourceProps[] {
       name: "contracts",
       list: "/contracts",
       show: "/contracts/:id",
-      meta: { label: "Verträge", icon: <FileProtectOutlined /> },
+      meta: { label: t("nav.contracts"), icon: <FileProtectOutlined /> },
     };
 
     if (isAdmin) {
@@ -77,25 +78,25 @@ function useRoleResources(): ResourceProps[] {
         {
           name: "admin-providers",
           list: "/admin/providers",
-          meta: { label: "Genehmigungen", icon: <AuditOutlined /> },
+          meta: { label: t("admin.pendingProviders"), icon: <AuditOutlined /> },
         },
         {
           name: "providers",
           list: "/providers",
           show: "/providers/:id",
-          meta: { label: "Firmen", icon: <TeamOutlined /> },
+          meta: { label: t("nav.providers"), icon: <TeamOutlined /> },
         },
         {
           name: "demands",
           list: "/demands",
           show: "/demands/:id",
-          meta: { label: "Anfragen", icon: <UnorderedListOutlined /> },
+          meta: { label: t("nav.demands"), icon: <UnorderedListOutlined /> },
         },
         contracts,
         {
           name: "payments",
           list: "/payments",
-          meta: { label: "Zahlungen", icon: <WalletOutlined /> },
+          meta: { label: t("nav.payments"), icon: <WalletOutlined /> },
         },
       ];
     }
@@ -106,12 +107,12 @@ function useRoleResources(): ResourceProps[] {
           name: "demands",
           list: "/demands",
           show: "/demands/:id",
-          meta: { label: "Marktplatz", icon: <ShopOutlined /> },
+          meta: { label: t("dashboard.marketplaceBtn"), icon: <ShopOutlined /> },
         },
         {
           name: "offers",
           list: "/offers",
-          meta: { label: "Meine Angebote", icon: <DollarOutlined /> },
+          meta: { label: t("offer.myOffers"), icon: <DollarOutlined /> },
         },
         contracts,
       ];
@@ -124,11 +125,11 @@ function useRoleResources(): ResourceProps[] {
         list: "/demands",
         show: "/demands/:id",
         create: "/demands/create",
-        meta: { label: "Meine Anfragen", icon: <FileTextOutlined /> },
+        meta: { label: t("dashboard.myDemands"), icon: <FileTextOutlined /> },
       },
       contracts,
     ];
-  }, [isProvider, isAdmin]);
+  }, [isProvider, isAdmin, t]);
 }
 
 function App() {
@@ -137,7 +138,48 @@ function App() {
   return (
     <ErrorBoundary>
     <BrowserRouter>
-      <ConfigProvider theme={RefineThemes.Blue}>
+      <ConfigProvider theme={{
+        token: {
+          colorPrimary: "#2563eb",
+          colorSuccess: "#16a34a",
+          colorWarning: "#f59e0b",
+          colorError: "#dc2626",
+          colorInfo: "#0ea5e9",
+          borderRadius: 8,
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          colorBgLayout: "#f0f5ff",
+          colorBgContainer: "#ffffff",
+        },
+        components: {
+          Layout: {
+            siderBg: "#0f172a",
+            triggerBg: "#1e293b",
+          },
+          Menu: {
+            darkItemBg: "#0f172a",
+            darkItemSelectedBg: "#2563eb",
+            darkItemHoverBg: "#1e293b",
+            darkItemColor: "#94a3b8",
+            darkItemSelectedColor: "#ffffff",
+            itemBorderRadius: 8,
+          },
+          Card: {
+            borderRadiusLG: 12,
+          },
+          Button: {
+            borderRadius: 8,
+            controlHeight: 36,
+          },
+          Table: {
+            borderRadius: 8,
+            headerBg: "#f8fafc",
+          },
+          Tag: {
+            borderRadiusSM: 6,
+          },
+        },
+        algorithm: theme.defaultAlgorithm,
+      }}>
         <AntdApp>
           <Refine
             dataProvider={dataProvider}

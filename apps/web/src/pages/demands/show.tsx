@@ -22,6 +22,7 @@ import {
   EuroOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 const { Title, Text } = Typography;
@@ -59,15 +60,16 @@ const offerStatusColors: Record<string, string> = {
   EXPIRED: "warning",
 };
 
-const serviceTypeLabels: Record<string, string> = {
-  PRIVATE_MOVE: "Privatumzug",
-  COMMERCIAL_MOVE: "Firmenumzug",
-  FURNITURE_TRANSPORT: "Möbeltransport",
-};
-
 export const DemandShow = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const serviceTypeLabels: Record<string, string> = {
+    PRIVATE_MOVE: t("demand.serviceTypes.PRIVATE_MOVE"),
+    COMMERCIAL_MOVE: t("demand.serviceTypes.COMMERCIAL_MOVE"),
+    FURNITURE_TRANSPORT: t("demand.serviceTypes.FURNITURE_TRANSPORT"),
+  };
   const { query } = useShow({ resource: "demands" });
   const { data, isLoading } = query;
   const record = data?.data as Record<string, unknown> | undefined;
@@ -97,29 +99,29 @@ export const DemandShow = () => {
       await axios.patch(`/api/v1/offers/${offerId}/${action}`, null, {
         headers: { "X-User-Role": role },
       });
-      message.success(action === "accept" ? "Angebot angenommen!" : "Angebot abgelehnt.");
+      message.success(action === "accept" ? t("offer.accepted") : t("offer.rejected"));
       refetchOffers();
       query.refetch();
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
       message.error(`Fehler: ${errorMsg}`);
     }
   };
 
   if (isLoading) return <Spin size="large" />;
-  if (!record) return <Empty description="Anfrage nicht gefunden" />;
+  if (!record) return <Empty description={t("demand.notFound")} />;
 
   const demandStatus = String(record.status ?? "");
   const isCustomer = role === "customer";
 
   const offerColumns = [
     {
-      title: "Anbieter",
+      title: t("offer.provider"),
       dataIndex: "providerCompanyId",
       render: (val: string) => <Text copyable={{ text: val }}>{val.slice(0, 8)}...</Text>,
     },
     {
-      title: "Preis",
+      title: t("common.price"),
       dataIndex: "totalPriceAmount",
       render: (cents: number) => (
         <Text strong>
@@ -129,26 +131,26 @@ export const DemandShow = () => {
       sorter: (a: Offer, b: Offer) => a.totalPriceAmount - b.totalPriceAmount,
     },
     {
-      title: "MwSt.",
+      title: t("offer.vat"),
       dataIndex: "vatAmount",
       render: (cents: number, rec: Offer) =>
         `${(cents / 100).toFixed(2)} EUR (${(rec.vatRate * 100).toFixed(0)}%)`,
     },
     {
-      title: "Gültig bis",
+      title: t("offer.validUntil"),
       dataIndex: "validUntil",
       render: (val: string) =>
         val ? new Date(val).toLocaleDateString("de-DE") : "—",
     },
     {
-      title: "Status",
+      title: t("common.status"),
       dataIndex: "status",
       render: (val: string) => (
         <Tag color={offerStatusColors[val] ?? "default"}>{val}</Tag>
       ),
     },
     {
-      title: "Nachricht",
+      title: t("offer.message"),
       dataIndex: "message",
       render: (val?: string) => val || <Text type="secondary">—</Text>,
       ellipsis: true,
@@ -156,7 +158,7 @@ export const DemandShow = () => {
     ...(isCustomer
       ? [
           {
-            title: "Aktion",
+            title: t("offer.action"),
             key: "action",
             render: (_: unknown, rec: Offer) =>
               rec.status === "SUBMITTED" && demandStatus !== "ACCEPTED" ? (
@@ -167,7 +169,7 @@ export const DemandShow = () => {
                     icon={<CheckCircleOutlined />}
                     onClick={() => handleOfferAction(rec.id, "accept")}
                   >
-                    Annehmen
+                    {t("offer.accept")}
                   </Button>
                   <Button
                     danger
@@ -175,7 +177,7 @@ export const DemandShow = () => {
                     icon={<CloseCircleOutlined />}
                     onClick={() => handleOfferAction(rec.id, "reject")}
                   >
-                    Ablehnen
+                    {t("offer.reject")}
                   </Button>
                 </Space>
               ) : null,
@@ -186,7 +188,7 @@ export const DemandShow = () => {
 
   return (
     <Show
-      title={`Umzugsanfrage ${String(record.id ?? "").slice(0, 8)}`}
+      title={`${t("demand.title")} ${String(record.id ?? "").slice(0, 8)}`}
       headerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}
@@ -195,7 +197,7 @@ export const DemandShow = () => {
               type="primary"
               onClick={() => navigate(`/demands/${id}/offer`)}
             >
-              Angebot abgeben
+              {t("offer.submit")}
             </Button>
           )}
         </>
@@ -204,57 +206,57 @@ export const DemandShow = () => {
       <Row gutter={24}>
         <Col span={16}>
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="Status">
+            <Descriptions.Item label={t("common.status")}>
               <Tag color={statusColors[demandStatus] ?? "default"}>
                 {demandStatus}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Umzugsart">
+            <Descriptions.Item label={t("demand.movingType")}>
               {serviceTypeLabels[String(record.serviceType)] ?? String(record.serviceType)}
             </Descriptions.Item>
-            <Descriptions.Item label="Angebote">
+            <Descriptions.Item label={`${t("demand.offers")} (${String(record.offerCount ?? 0)})`}>
               <Tag icon={<ClockCircleOutlined />}>
-                {String(record.offerCount ?? 0)} Angebote
+                {String(record.offerCount ?? 0)} {t("demand.offers")}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Erstellt am">
+            <Descriptions.Item label={t("demand.createdAt")}>
               {record.createdAt
                 ? new Date(String(record.createdAt)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
-            <Descriptions.Item label="Gültig bis">
+            <Descriptions.Item label={t("demand.validUntil")}>
               {record.expiresAt
                 ? new Date(String(record.expiresAt)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
-            <Descriptions.Item label="Sprache">
+            <Descriptions.Item label={t("demand.language")}>
               {String(record.preferredLocale ?? "de").toUpperCase()}
             </Descriptions.Item>
           </Descriptions>
 
           {String(record.additionalNotes ?? "") && (
-            <Card size="small" title="Anmerkungen" style={{ marginTop: 16 }}>
+            <Card size="small" title={t("demand.notes")} style={{ marginTop: 16 }}>
               <Text>{String(record.additionalNotes)}</Text>
             </Card>
           )}
         </Col>
 
         <Col span={8}>
-          <Card size="small" title="Schnellinfo">
+          <Card size="small" title={t("demand.quickInfo")}>
             <Space direction="vertical" style={{ width: "100%" }}>
               <div>
-                <Text type="secondary">Anfrage-ID</Text>
+                <Text type="secondary">{t("demand.requestId")}</Text>
                 <br />
                 <Text copyable>{String(record.id)}</Text>
               </div>
               <div>
-                <Text type="secondary">Kunde</Text>
+                <Text type="secondary">{t("demand.customer")}</Text>
                 <br />
                 <Text>{String(record.customerUserId ?? "").slice(0, 8)}...</Text>
               </div>
               {record.transportationId != null && (
                 <div>
-                  <Text type="secondary">Transport-ID</Text>
+                  <Text type="secondary">{t("demand.transportId")}</Text>
                   <br />
                   <Text copyable>
                     {String(record.transportationId).slice(0, 8)}...
@@ -269,7 +271,7 @@ export const DemandShow = () => {
       <Divider />
 
       <Title level={5}>
-        Angebote ({offers.length})
+        {t("demand.offers")} ({offers.length})
       </Title>
 
       {offers.length > 0 ? (
@@ -281,7 +283,7 @@ export const DemandShow = () => {
           size="small"
         />
       ) : (
-        <Empty description="Noch keine Angebote vorhanden" />
+        <Empty description={t("demand.noOffers")} />
       )}
     </Show>
   );

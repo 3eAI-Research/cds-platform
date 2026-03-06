@@ -3,6 +3,7 @@ import { List } from "@refinedev/antd";
 import { Table, Tag, Typography, Space, Button } from "antd";
 import { EuroOutlined, EyeOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -27,6 +28,7 @@ const statusColors: Record<string, string> = {
 };
 
 export const OfferList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = localStorage.getItem("cds-role") || "customer";
 
@@ -43,7 +45,7 @@ export const OfferList = () => {
 
   const columns = [
     {
-      title: "Anfrage",
+      title: t("offer.request"),
       dataIndex: "demandId",
       render: (val: string) => (
         <Button type="link" size="small" onClick={() => navigate(`/demands/${val}`)}>
@@ -52,7 +54,7 @@ export const OfferList = () => {
       ),
     },
     {
-      title: "Preis",
+      title: t("common.price"),
       dataIndex: "totalPriceAmount",
       render: (cents: number) => (
         <Text strong>
@@ -62,21 +64,21 @@ export const OfferList = () => {
       sorter: (a: Offer, b: Offer) => a.totalPriceAmount - b.totalPriceAmount,
     },
     {
-      title: "Netto",
+      title: t("offer.net"),
       dataIndex: "providerNetAmount",
       render: (cents: number) => (
         <Text type="success">{(cents / 100).toFixed(2)} EUR</Text>
       ),
     },
     {
-      title: "Provision",
+      title: t("offer.commission"),
       dataIndex: "commissionAmount",
       render: (cents: number) => (
         <Text type="danger">{(cents / 100).toFixed(2)} EUR</Text>
       ),
     },
     {
-      title: "Status",
+      title: t("common.status"),
       dataIndex: "status",
       render: (val: string) => (
         <Tag color={statusColors[val] ?? "default"}>{val}</Tag>
@@ -85,13 +87,13 @@ export const OfferList = () => {
       onFilter: (value: unknown, record: Offer) => record.status === value,
     },
     {
-      title: "Gültig bis",
+      title: t("offer.validUntil"),
       dataIndex: "validUntil",
       render: (val: string) =>
         val ? new Date(val).toLocaleDateString("de-DE") : "—",
     },
     {
-      title: "Erstellt",
+      title: t("common.created"),
       dataIndex: "createdAt",
       render: (val: string) => new Date(val).toLocaleDateString("de-DE"),
     },
@@ -105,7 +107,7 @@ export const OfferList = () => {
             icon={<EyeOutlined />}
             onClick={() => navigate(`/demands/${rec.demandId}`)}
           >
-            Anfrage
+            {t("offer.request")}
           </Button>
         </Space>
       ),
@@ -113,7 +115,7 @@ export const OfferList = () => {
   ];
 
   return (
-    <List title="Meine Angebote">
+    <List title={t("offer.myOffers")}>
       <Table
         dataSource={offers}
         columns={columns}

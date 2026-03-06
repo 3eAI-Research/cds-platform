@@ -1,8 +1,9 @@
 import { useGetIdentity, useLogout } from "@refinedev/core";
-import { Button, Space, Tag, Typography, Segmented } from "antd";
-import { LogoutOutlined, SwapOutlined } from "@ant-design/icons";
+import { Button, Space, Tag, Typography, Select } from "antd";
+import { LogoutOutlined, SwapOutlined, GlobalOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import { NotificationBell } from "./notification-bell";
+import { SUPPORTED_LANGUAGES } from "../i18n";
 
 const { Text } = Typography;
 
@@ -12,11 +13,11 @@ const roleColors: Record<string, string> = {
   customer: "blue",
 };
 
-const roleLabels: Record<string, string> = {
-  admin: "Admin",
-  provider_owner: "Provider",
-  customer: "Customer",
-};
+const getRoleLabels = (t: (key: string) => string): Record<string, string> => ({
+  admin: t("auth.admin"),
+  provider_owner: t("auth.provider"),
+  customer: t("auth.customer"),
+});
 
 export const AppHeader = () => {
   const { data: identity } = useGetIdentity<{
@@ -25,14 +26,13 @@ export const AppHeader = () => {
     email: string;
   }>();
   const { mutate: logout } = useLogout();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const role = identity?.role ?? "customer";
 
-  const handleLangChange = (lang: string | number) => {
-    const langStr = String(lang);
-    i18n.changeLanguage(langStr);
-    localStorage.setItem("cds-lang", langStr);
+  const handleLangChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("cds-lang", lang);
   };
 
   return (
@@ -46,18 +46,22 @@ export const AppHeader = () => {
       }}
     >
       <Space>
-        <Segmented
+        <Select
           size="small"
           value={i18n.language}
-          options={[
-            { value: "de", label: "DE" },
-            { value: "en", label: "EN" },
-          ]}
           onChange={handleLangChange}
+          style={{ width: 140 }}
+          suffixIcon={<GlobalOutlined />}
+          optionFilterProp="label"
+          showSearch
+          options={SUPPORTED_LANGUAGES.map((lang) => ({
+            value: lang.code,
+            label: `${lang.flag} ${lang.label}`,
+          }))}
         />
         <NotificationBell />
         <Tag color={roleColors[role] ?? "blue"}>
-          {roleLabels[role] ?? role}
+          {getRoleLabels(t)[role] ?? role}
         </Tag>
         <Text>{identity?.name}</Text>
         <Button
@@ -65,7 +69,7 @@ export const AppHeader = () => {
           icon={<SwapOutlined />}
           onClick={() => logout()}
         >
-          Switch role
+          {t("auth.switchRole")}
         </Button>
         <Button
           size="small"

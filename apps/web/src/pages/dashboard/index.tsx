@@ -1,4 +1,5 @@
 import { useGetIdentity, useList } from "@refinedev/core";
+import { useTranslation } from "react-i18next";
 import { Card, Typography, Row, Col, Statistic, Button, Space } from "antd";
 import {
   FileTextOutlined,
@@ -17,6 +18,7 @@ import { useCustom } from "@refinedev/core";
 const { Title, Text } = Typography;
 
 export const DashboardPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: identity } = useGetIdentity<{
     name: string;
@@ -59,10 +61,10 @@ export const DashboardPage = () => {
         <Row justify="space-between" align="middle">
           <Col>
             <Title level={4} style={{ margin: 0 }}>
-              Admin Dashboard
+              {t("dashboard.adminTitle")}
             </Title>
             <Text type="secondary">
-              Plattform-Verwaltung
+              {t("dashboard.adminSubtitle")}
             </Text>
           </Col>
         </Row>
@@ -71,13 +73,13 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card hoverable onClick={() => navigate("/admin/providers")}>
               <Statistic
-                title="Ausstehende Genehmigungen"
+                title={t("dashboard.pendingApprovals")}
                 value={pendingProviders}
                 prefix={<AuditOutlined style={{ color: "#fa541c" }} />}
                 valueStyle={pendingProviders > 0 ? { color: "#fa541c" } : undefined}
               />
               <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                Prüfen <ArrowRightOutlined />
+                {t("dashboard.review")} <ArrowRightOutlined />
               </Button>
             </Card>
           </Col>
@@ -85,12 +87,12 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card hoverable onClick={() => navigate("/providers")}>
               <Statistic
-                title="Firmen"
+                title={t("dashboard.companies")}
                 value="—"
                 prefix={<TeamOutlined style={{ color: "#52c41a" }} />}
               />
               <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                Alle anzeigen <ArrowRightOutlined />
+                {t("dashboard.viewAll")} <ArrowRightOutlined />
               </Button>
             </Card>
           </Col>
@@ -98,12 +100,12 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card hoverable onClick={() => navigate("/demands")}>
               <Statistic
-                title="Anfragen"
+                title={t("dashboard.requests")}
                 value={demandTotal}
                 prefix={<FileTextOutlined style={{ color: "#1890ff" }} />}
               />
               <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                Alle anzeigen <ArrowRightOutlined />
+                {t("dashboard.viewAll")} <ArrowRightOutlined />
               </Button>
             </Card>
           </Col>
@@ -111,12 +113,12 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card hoverable onClick={() => navigate("/contracts")}>
               <Statistic
-                title="Verträge"
+                title={t("dashboard.contracts")}
                 value={contractTotal}
                 prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
               />
               <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                Alle anzeigen <ArrowRightOutlined />
+                {t("dashboard.viewAll")} <ArrowRightOutlined />
               </Button>
             </Card>
           </Col>
@@ -126,20 +128,20 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card>
               <Space direction="vertical" style={{ width: "100%" }}>
-                <Text strong>Schnellaktionen</Text>
+                <Text strong>{t("dashboard.quickActions")}</Text>
                 <Button
                   block
                   icon={<AuditOutlined />}
                   onClick={() => navigate("/admin/providers")}
                 >
-                  Firmen prüfen
+                  {t("dashboard.reviewCompanies")}
                 </Button>
                 <Button
                   block
                   icon={<WalletOutlined />}
                   onClick={() => navigate("/payments")}
                 >
-                  Zahlungen
+                  {t("dashboard.payments")}
                 </Button>
               </Space>
             </Card>
@@ -155,12 +157,12 @@ export const DashboardPage = () => {
       <Row justify="space-between" align="middle">
         <Col>
           <Title level={4} style={{ margin: 0 }}>
-            Willkommen, {identity?.name ?? "Benutzer"}
+            {t("dashboard.welcome")}, {identity?.name ?? "Benutzer"}
           </Title>
           <Text type="secondary">
             {isProvider
-              ? "Umzugsunternehmen-Dashboard"
-              : "Kunden-Dashboard"}
+              ? t("dashboard.providerSubtitle")
+              : t("dashboard.customerSubtitle")}
           </Text>
         </Col>
         <Col>
@@ -171,7 +173,7 @@ export const DashboardPage = () => {
               size="large"
               onClick={() => navigate("/demands/create")}
             >
-              Neue Umzugsanfrage
+              {t("dashboard.newMovingRequest")}
             </Button>
           )}
           {isProvider && (
@@ -181,7 +183,7 @@ export const DashboardPage = () => {
               size="large"
               onClick={() => navigate("/demands")}
             >
-              Marktplatz
+              {t("dashboard.marketplaceBtn")}
             </Button>
           )}
         </Col>
@@ -191,7 +193,7 @@ export const DashboardPage = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable onClick={() => navigate("/demands")}>
             <Statistic
-              title={isProvider ? "Marktplatz-Anfragen" : "Meine Anfragen"}
+              title={isProvider ? t("dashboard.marketplace") : t("dashboard.myDemands")}
               value={demandTotal}
               prefix={
                 isProvider ? (
@@ -202,7 +204,7 @@ export const DashboardPage = () => {
               }
             />
             <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-              Alle anzeigen <ArrowRightOutlined />
+              {t("dashboard.viewAll")} <ArrowRightOutlined />
             </Button>
           </Card>
         </Col>
@@ -211,12 +213,12 @@ export const DashboardPage = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card hoverable onClick={() => navigate("/offers")}>
               <Statistic
-                title="Meine Angebote"
+                title={t("dashboard.myOffers")}
                 value="—"
                 prefix={<DollarOutlined style={{ color: "#fa8c16" }} />}
               />
               <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                Angebote ansehen <ArrowRightOutlined />
+                {t("dashboard.viewOffersBtn")} <ArrowRightOutlined />
               </Button>
             </Card>
           </Col>
@@ -225,12 +227,12 @@ export const DashboardPage = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable onClick={() => navigate("/contracts")}>
             <Statistic
-              title="Verträge"
+              title={t("dashboard.contracts")}
               value={contractTotal}
               prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
             />
             <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-              Verträge ansehen <ArrowRightOutlined />
+              {t("dashboard.viewContractsBtn")} <ArrowRightOutlined />
             </Button>
           </Card>
         </Col>
@@ -238,7 +240,7 @@ export const DashboardPage = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card>
             <Space direction="vertical">
-              <Text strong>Schnellaktionen</Text>
+              <Text strong>{t("dashboard.quickActions")}</Text>
               {!isProvider ? (
                 <>
                   <Button
@@ -246,14 +248,14 @@ export const DashboardPage = () => {
                     icon={<PlusOutlined />}
                     onClick={() => navigate("/demands/create")}
                   >
-                    Neue Anfrage
+                    {t("dashboard.newDemand")}
                   </Button>
                   <Button
                     block
                     icon={<FileProtectOutlined />}
                     onClick={() => navigate("/contracts")}
                   >
-                    Verträge prüfen
+                    {t("dashboard.viewContracts")}
                   </Button>
                 </>
               ) : (
@@ -263,14 +265,14 @@ export const DashboardPage = () => {
                     icon={<ShoppingOutlined />}
                     onClick={() => navigate("/demands")}
                   >
-                    Aufträge suchen
+                    {t("dashboard.findJobs")}
                   </Button>
                   <Button
                     block
                     icon={<DollarOutlined />}
                     onClick={() => navigate("/offers")}
                   >
-                    Meine Angebote
+                    {t("dashboard.viewOffers")}
                   </Button>
                 </>
               )}

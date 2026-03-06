@@ -3,6 +3,7 @@ import { List } from "@refinedev/antd";
 import { Table, Tag, Typography, Button, Space, message } from "antd";
 import { EuroOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 const { Text } = Typography;
@@ -24,6 +25,7 @@ interface PaymentRecord {
 }
 
 export const PaymentList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = localStorage.getItem("cds-role") || "customer";
 
@@ -39,10 +41,10 @@ export const PaymentList = () => {
       });
       message.success(
         action === "complete"
-          ? "Zahlung abgeschlossen"
+          ? t("payment.completed")
           : action === "fail"
-            ? "Zahlung fehlgeschlagen"
-            : "Rückerstattung eingeleitet"
+            ? t("payment.failed")
+            : t("payment.refunded")
       );
       refetch();
     } catch (err: unknown) {
@@ -52,7 +54,7 @@ export const PaymentList = () => {
   };
 
   return (
-    <List title="Zahlungen">
+    <List title={t("payment.title")}>
       <Table<PaymentRecord>
         dataSource={data?.data as PaymentRecord[]}
         loading={isLoading}
@@ -66,7 +68,7 @@ export const PaymentList = () => {
           render={(id: string) => <Text copyable={{ text: id }}>{id.slice(0, 8)}</Text>}
         />
         <Table.Column<PaymentRecord>
-          title="Betrag"
+          title={t("common.amount")}
           dataIndex="amount"
           width={120}
           render={(cents: number) => (
@@ -77,7 +79,7 @@ export const PaymentList = () => {
           sorter={(a, b) => a.amount - b.amount}
         />
         <Table.Column<PaymentRecord>
-          title="Status"
+          title={t("common.status")}
           dataIndex="status"
           width={120}
           render={(s: string) => (
@@ -87,7 +89,7 @@ export const PaymentList = () => {
           onFilter={(value, record) => record.status === value}
         />
         <Table.Column<PaymentRecord>
-          title="Vertrag"
+          title={t("payment.contract")}
           dataIndex="contractId"
           render={(id: string) =>
             id ? (
@@ -104,7 +106,7 @@ export const PaymentList = () => {
           }
         />
         <Table.Column<PaymentRecord>
-          title="Erstellt"
+          title={t("common.created")}
           dataIndex="createdAt"
           width={100}
           render={(d: string) => new Date(d).toLocaleDateString("de-DE")}
@@ -114,7 +116,7 @@ export const PaymentList = () => {
           }
         />
         <Table.Column<PaymentRecord>
-          title="Aktionen"
+          title={t("common.actions")}
           key="actions"
           width={200}
           render={(_, record) => (
@@ -126,14 +128,14 @@ export const PaymentList = () => {
                     type="primary"
                     onClick={() => handleAction(record.id, "complete")}
                   >
-                    Abschließen
+                    {t("payment.complete")}
                   </Button>
                   <Button
                     size="small"
                     danger
                     onClick={() => handleAction(record.id, "fail")}
                   >
-                    Fehlgeschlagen
+                    {t("payment.fail")}
                   </Button>
                 </>
               )}
@@ -142,7 +144,7 @@ export const PaymentList = () => {
                   size="small"
                   onClick={() => handleAction(record.id, "refund")}
                 >
-                  Rückerstattung
+                  {t("payment.refund")}
                 </Button>
               )}
             </Space>

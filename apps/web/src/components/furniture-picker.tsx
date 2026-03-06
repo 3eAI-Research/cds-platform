@@ -1,6 +1,7 @@
 import { useCustom } from "@refinedev/core";
 import { Card, Collapse, InputNumber, Space, Tag, Typography, Spin, Empty } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -29,6 +30,7 @@ interface FurniturePickerProps {
 }
 
 export const FurniturePicker = ({ value = [], onChange }: FurniturePickerProps) => {
+  const { t } = useTranslation();
   const { data, isLoading } = useCustom<FurnitureGroup[]>({
     url: "/furniture-groups",
     method: "get",
@@ -61,16 +63,16 @@ export const FurniturePicker = ({ value = [], onChange }: FurniturePickerProps) 
   const totalItems = value.reduce((sum, v) => sum + v.quantity, 0);
 
   if (isLoading) return <Spin />;
-  if (!groups.length) return <Empty description="Keine Möbeltypen gefunden" />;
+  if (!groups.length) return <Empty description={t("furniture.noTypes")} />;
 
   return (
     <div>
       <Card size="small" style={{ marginBottom: 16 }}>
         <Space size="large">
           <Text strong>
-            <InboxOutlined /> {totalItems} Gegenstände
+            <InboxOutlined /> {totalItems} {t("furniture.items")}
           </Text>
-          <Tag color="blue">{totalVolume.toFixed(1)} m³ geschätzt</Tag>
+          <Tag color="blue">{totalVolume.toFixed(1)} m³ {t("furniture.estimated")}</Tag>
         </Space>
       </Card>
 
@@ -82,7 +84,7 @@ export const FurniturePicker = ({ value = [], onChange }: FurniturePickerProps) 
             <Space>
               <Text strong>{group.name}</Text>
               <Tag>
-                {group.furnitureTypes.filter((ft) => getQuantity(ft.id) > 0).length} ausgewählt
+                {group.furnitureTypes.filter((ft) => getQuantity(ft.id) > 0).length} {t("furniture.selected")}
               </Tag>
             </Space>
           ),
@@ -104,7 +106,7 @@ export const FurniturePicker = ({ value = [], onChange }: FurniturePickerProps) 
                     <Text>{ft.name}</Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       {ft.volume} m³
-                      {ft.assemblable && " · montierbar"}
+                      {ft.assemblable && ` · ${t("furniture.assemblable")}`}
                     </Text>
                   </Space>
                   <InputNumber

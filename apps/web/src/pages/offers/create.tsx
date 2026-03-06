@@ -15,6 +15,7 @@ import {
 } from "antd";
 import { EuroOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useState } from "react";
 
@@ -25,6 +26,7 @@ const COMMISSION_RATE = 0.04; // 4%
 const VAT_RATE = 0.19; // 19%
 
 export const OfferCreate = () => {
+  const { t } = useTranslation();
   const { demandId } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
@@ -68,10 +70,10 @@ export const OfferCreate = () => {
         headers: { "X-User-Role": "provider" },
       });
 
-      message.success("Angebot erfolgreich eingereicht!");
+      message.success(t("offer.submitted"));
       navigate(`/demands/${demandId}`);
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
       message.error(`Fehler: ${errorMsg}`);
     } finally {
       setSubmitting(false);
@@ -82,25 +84,25 @@ export const OfferCreate = () => {
 
   return (
     <Create
-      title={`Angebot für Anfrage ${String(demand?.id ?? "").slice(0, 8)}`}
+      title={`${t("offer.offerFor")} ${String(demand?.id ?? "").slice(0, 8)}`}
       footerButtons={() => null}
       breadcrumb={false}
     >
       <Row gutter={24}>
         <Col span={14}>
           <Form form={form} layout="vertical">
-            <Card title="Preisgestaltung" size="small" style={{ marginBottom: 16 }}>
+            <Card title={t("offer.pricing")} size="small" style={{ marginBottom: 16 }}>
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
                     name="priceEur"
-                    label="Gesamtpreis (EUR, netto)"
+                    label={t("offer.price")}
                     rules={[
-                      { required: true, message: "Preis erforderlich" },
+                      { required: true, message: t("offer.priceRequired") },
                       {
                         type: "number",
                         min: 1,
-                        message: "Mindestens 1 EUR",
+                        message: t("validation.minPrice"),
                       },
                     ]}
                   >
@@ -117,8 +119,8 @@ export const OfferCreate = () => {
                 <Col span={12}>
                   <Form.Item
                     name="validUntil"
-                    label="Gültig bis"
-                    rules={[{ required: true, message: "Datum erforderlich" }]}
+                    label={t("offer.validUntil")}
+                    rules={[{ required: true, message: t("validation.dateRequired") }]}
                   >
                     <DatePicker
                       style={{ width: "100%" }}
@@ -129,18 +131,18 @@ export const OfferCreate = () => {
               </Row>
             </Card>
 
-            <Card title="Nachricht an Kunden" size="small" style={{ marginBottom: 16 }}>
+            <Card title={t("offer.message")} size="small" style={{ marginBottom: 16 }}>
               <Form.Item name="message">
                 <TextArea
                   rows={4}
                   maxLength={2000}
                   showCount
-                  placeholder="Beschreiben Sie Ihr Angebot, Leistungen, Konditionen..."
+                  placeholder={t("offer.messagePlaceholder")}
                 />
               </Form.Item>
             </Card>
 
-            <Card title="Preisaufschlüsselung (optional)" size="small" style={{ marginBottom: 16 }}>
+            <Card title={t("offer.priceBreakdown")} size="small" style={{ marginBottom: 16 }}>
               <Form.Item name="priceBreakdown">
                 <TextArea
                   rows={3}
@@ -164,18 +166,18 @@ export const OfferCreate = () => {
                   fontSize: 14,
                 }}
               >
-                {submitting ? "Wird eingereicht..." : "Angebot einreichen"}
+                {submitting ? t("offer.submitting") : t("offer.submitOffer")}
               </button>
             </div>
           </Form>
         </Col>
 
         <Col span={10}>
-          <Card title="Kalkulation" size="small">
+          <Card title={t("offer.calculation")} size="small">
             <Row gutter={[16, 16]}>
               <Col span={12}>
                 <Statistic
-                  title="Ihr Preis"
+                  title={t("offer.yourPrice")}
                   value={priceEur}
                   precision={2}
                   suffix="EUR"
@@ -183,7 +185,7 @@ export const OfferCreate = () => {
               </Col>
               <Col span={12}>
                 <Statistic
-                  title={`Provision (${(COMMISSION_RATE * 100).toFixed(0)}%)`}
+                  title={`${t("offer.commission")} (${(COMMISSION_RATE * 100).toFixed(0)}%)`}
                   value={commission}
                   precision={2}
                   suffix="EUR"
@@ -192,7 +194,7 @@ export const OfferCreate = () => {
               </Col>
               <Col span={12}>
                 <Statistic
-                  title="Netto (nach Provision)"
+                  title={t("offer.netAmount")}
                   value={netAmount}
                   precision={2}
                   suffix="EUR"
@@ -209,7 +211,7 @@ export const OfferCreate = () => {
               </Col>
               <Col span={24}>
                 <Statistic
-                  title="Kundenpreis (inkl. MwSt.)"
+                  title={t("offer.customerPrice")}
                   value={totalWithVat}
                   precision={2}
                   suffix="EUR"
@@ -220,17 +222,17 @@ export const OfferCreate = () => {
           </Card>
 
           {demand && (
-            <Card title="Anfrage-Info" size="small" style={{ marginTop: 16 }}>
-              <Text type="secondary">Status: </Text>
+            <Card title={t("offer.requestInfo")} size="small" style={{ marginTop: 16 }}>
+              <Text type="secondary">{t("common.status")}: </Text>
               <Text>{String(demand.status)}</Text>
               <br />
-              <Text type="secondary">Art: </Text>
+              <Text type="secondary">{t("common.type")}: </Text>
               <Text>{String(demand.serviceType)}</Text>
               <br />
-              <Text type="secondary">Angebote: </Text>
+              <Text type="secondary">{t("demand.offers")}: </Text>
               <Text>{String(demand.offerCount ?? 0)}</Text>
               <br />
-              <Text type="secondary">Erstellt: </Text>
+              <Text type="secondary">{t("common.created")}: </Text>
               <Text>
                 {demand.createdAt
                   ? new Date(String(demand.createdAt)).toLocaleDateString("de-DE")

@@ -3,6 +3,7 @@ import { List } from "@refinedev/antd";
 import { Table, Tag, Button, Space, Typography } from "antd";
 import { PlusOutlined, EuroOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -15,12 +16,6 @@ const statusColors: Record<string, string> = {
   CANCELLED: "red",
 };
 
-const serviceTypeLabels: Record<string, string> = {
-  PRIVATE_MOVE: "Privat",
-  COMMERCIAL_MOVE: "Firma",
-  FURNITURE_TRANSPORT: "Möbel",
-};
-
 interface DemandRecord {
   id: string;
   status: string;
@@ -31,9 +26,16 @@ interface DemandRecord {
 }
 
 export const DemandList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: identity } = useGetIdentity<{ role: string }>();
   const isProvider = identity?.role === "provider_owner";
+
+  const serviceTypeLabels: Record<string, string> = {
+    PRIVATE_MOVE: t("demand.serviceTypes.PRIVATE_MOVE"),
+    COMMERCIAL_MOVE: t("demand.serviceTypes.COMMERCIAL_MOVE"),
+    FURNITURE_TRANSPORT: t("demand.serviceTypes.FURNITURE_TRANSPORT"),
+  };
 
   const { data, isLoading } = useList({
     resource: "demands",
@@ -42,7 +44,7 @@ export const DemandList = () => {
 
   return (
     <List
-      title={isProvider ? "Marktplatz — Umzugsanfragen" : "Meine Umzugsanfragen"}
+      title={isProvider ? t("demand.titleProvider") : t("demand.titleCustomer")}
       headerButtons={
         !isProvider
           ? [
@@ -52,7 +54,7 @@ export const DemandList = () => {
                 icon={<PlusOutlined />}
                 onClick={() => navigate("/demands/create")}
               >
-                Neue Anfrage
+                {t("demand.new")}
               </Button>,
             ]
           : []
@@ -75,7 +77,7 @@ export const DemandList = () => {
           render={(id: string) => <Text copyable={{ text: id }}>{id.slice(0, 8)}</Text>}
         />
         <Table.Column<DemandRecord>
-          title="Art"
+          title={t("common.type")}
           dataIndex="serviceType"
           width={80}
           render={(val: string) => (
@@ -85,7 +87,7 @@ export const DemandList = () => {
           onFilter={(value, record) => record.serviceType === value}
         />
         <Table.Column<DemandRecord>
-          title="Status"
+          title={t("common.status")}
           dataIndex="status"
           width={110}
           render={(status: string) => (
@@ -95,7 +97,7 @@ export const DemandList = () => {
           onFilter={(value, record) => record.status === value}
         />
         <Table.Column<DemandRecord>
-          title="Angebote"
+          title={t("demand.offers")}
           dataIndex="offerCount"
           width={90}
           render={(count: number) => (
@@ -106,7 +108,7 @@ export const DemandList = () => {
           sorter={(a, b) => (a.offerCount ?? 0) - (b.offerCount ?? 0)}
         />
         <Table.Column<DemandRecord>
-          title="Gültig bis"
+          title={t("demand.validUntil")}
           dataIndex="expiresAt"
           width={110}
           render={(val: string) =>
@@ -114,7 +116,7 @@ export const DemandList = () => {
           }
         />
         <Table.Column<DemandRecord>
-          title="Erstellt"
+          title={t("common.created")}
           dataIndex="createdAt"
           width={100}
           render={(d: string) => new Date(d).toLocaleDateString("de-DE")}
@@ -125,7 +127,7 @@ export const DemandList = () => {
         />
         {isProvider && (
           <Table.Column<DemandRecord>
-            title="Aktion"
+            title={t("offer.action")}
             width={140}
             render={(_, record) =>
               record.status === "PUBLISHED" ? (
@@ -138,7 +140,7 @@ export const DemandList = () => {
                       navigate(`/demands/${record.id}/offer`);
                     }}
                   >
-                    Angebot abgeben
+                    {t("offer.submit")}
                   </Button>
                 </Space>
               ) : null

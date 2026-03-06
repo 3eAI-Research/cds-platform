@@ -3,6 +3,7 @@ import { List } from "@refinedev/antd";
 import { Table, Tag, Typography, Rate, Button } from "antd";
 import { PlusOutlined, PhoneOutlined, MailOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -27,6 +28,7 @@ interface ProviderRecord {
 }
 
 export const ProviderList = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = localStorage.getItem("cds-role") || "customer";
   const isProvider = role === "provider";
@@ -38,7 +40,7 @@ export const ProviderList = () => {
 
   return (
     <List
-      title="Umzugsunternehmen"
+      title={t("provider.title")}
       headerButtons={
         isProvider
           ? [
@@ -48,7 +50,7 @@ export const ProviderList = () => {
                 icon={<PlusOutlined />}
                 onClick={() => navigate("/providers/create")}
               >
-                Firma registrieren
+                {t("provider.register")}
               </Button>,
             ]
           : []
@@ -65,13 +67,13 @@ export const ProviderList = () => {
         })}
       >
         <Table.Column<ProviderRecord>
-          title="Firma"
+          title={t("provider.name")}
           dataIndex="name"
           render={(name: string) => <Text strong>{name}</Text>}
           sorter={(a, b) => a.name.localeCompare(b.name)}
         />
         <Table.Column<ProviderRecord>
-          title="Status"
+          title={t("common.status")}
           dataIndex="status"
           width={100}
           render={(s: string) => (
@@ -79,7 +81,7 @@ export const ProviderList = () => {
           )}
         />
         <Table.Column<ProviderRecord>
-          title="Bewertung"
+          title={t("provider.rating")}
           dataIndex="averageRating"
           width={180}
           render={(rating: number | null, record) => (
@@ -92,20 +94,20 @@ export const ProviderList = () => {
                   </Text>
                 </>
               ) : (
-                <Text type="secondary">Keine Bewertungen</Text>
+                <Text type="secondary">{t("provider.noRatings")}</Text>
               )}
             </>
           )}
           sorter={(a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0)}
         />
         <Table.Column<ProviderRecord>
-          title="Aufträge"
+          title={t("provider.completedJobs")}
           dataIndex="completedJobCount"
           width={90}
           sorter={(a, b) => a.completedJobCount - b.completedJobCount}
         />
         <Table.Column<ProviderRecord>
-          title="Kontakt"
+          title={t("provider.contact")}
           key="contact"
           width={200}
           render={(_, record) => (
@@ -121,7 +123,7 @@ export const ProviderList = () => {
           )}
         />
         <Table.Column<ProviderRecord>
-          title="PLZ-Gebiete"
+          title={t("provider.plzAreas")}
           dataIndex="supportedPostCodePrefixes"
           width={120}
           render={(prefixes: string[]) => (

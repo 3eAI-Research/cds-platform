@@ -3,6 +3,7 @@ import { List } from "@refinedev/antd";
 import { Table, Tag, Typography, Space } from "antd";
 import { CheckCircleOutlined, EuroOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -13,15 +14,6 @@ const statusColors: Record<string, string> = {
   ACTIVE: "success",
   COMPLETED: "purple",
   CANCELLED: "error",
-};
-
-const statusLabels: Record<string, string> = {
-  DRAFT: "Entwurf",
-  PENDING_CUSTOMER: "Kundenbestätigung",
-  PENDING_PROVIDER: "Anbieterbestätigung",
-  ACTIVE: "Aktiv",
-  COMPLETED: "Abgeschlossen",
-  CANCELLED: "Storniert",
 };
 
 interface ContractRecord {
@@ -36,10 +28,20 @@ interface ContractRecord {
 
 export const ContractList = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data, isLoading } = useList({ resource: "contracts" });
 
+  const statusLabels: Record<string, string> = {
+    DRAFT: t("contract.draft"),
+    PENDING_CUSTOMER: t("contract.pendingCustomer"),
+    PENDING_PROVIDER: t("contract.pendingProvider"),
+    ACTIVE: t("contract.active"),
+    COMPLETED: t("contract.completed"),
+    CANCELLED: t("contract.cancelled"),
+  };
+
   return (
-    <List title="Verträge">
+    <List title={t("contract.title")}>
       <Table<ContractRecord>
         dataSource={data?.data as ContractRecord[]}
         loading={isLoading}
@@ -57,7 +59,7 @@ export const ContractList = () => {
           render={(id: string) => <Text copyable={{ text: id }}>{id.slice(0, 8)}</Text>}
         />
         <Table.Column<ContractRecord>
-          title="Status"
+          title={t("common.status")}
           dataIndex="status"
           width={160}
           render={(s: string) => (
@@ -69,7 +71,7 @@ export const ContractList = () => {
           onFilter={(value, record) => record.status === value}
         />
         <Table.Column<ContractRecord>
-          title="Preis"
+          title={t("common.price")}
           dataIndex="agreedPriceAmount"
           width={120}
           render={(cents: number) =>
@@ -86,7 +88,7 @@ export const ContractList = () => {
           }
         />
         <Table.Column<ContractRecord>
-          title="Bestätigung"
+          title={t("common.confirmation")}
           key="acceptance"
           width={160}
           render={(_, record) => (
@@ -95,19 +97,19 @@ export const ContractList = () => {
                 color={record.customerAcceptedAt ? "green" : "default"}
                 icon={record.customerAcceptedAt ? <CheckCircleOutlined /> : undefined}
               >
-                Kunde
+                {t("auth.customer")}
               </Tag>
               <Tag
                 color={record.providerAcceptedAt ? "green" : "default"}
                 icon={record.providerAcceptedAt ? <CheckCircleOutlined /> : undefined}
               >
-                Anbieter
+                {t("auth.provider")}
               </Tag>
             </Space>
           )}
         />
         <Table.Column<ContractRecord>
-          title="Servicedatum"
+          title={t("contract.serviceDate")}
           dataIndex="serviceDate"
           width={110}
           render={(val: string) =>
@@ -115,7 +117,7 @@ export const ContractList = () => {
           }
         />
         <Table.Column<ContractRecord>
-          title="Erstellt"
+          title={t("common.created")}
           dataIndex="createdAt"
           width={100}
           render={(d: string) => new Date(d).toLocaleDateString("de-DE")}

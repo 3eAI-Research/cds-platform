@@ -28,6 +28,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const { Text, Title } = Typography;
 
@@ -51,21 +52,22 @@ interface ProviderDocument {
   createdAt: string;
 }
 
-const docTypeLabels: Record<string, string> = {
-  BUSINESS_LICENSE: "Gewerbeschein",
-  INSURANCE: "Versicherung",
-  COMMERCIAL_REGISTER: "Handelsregister",
-  OTHER: "Sonstiges",
-};
-
 const fileIcon = (mimeType: string) =>
   mimeType === "application/pdf" ? <FilePdfOutlined /> : <FileImageOutlined />;
 
 export const ProviderReview = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const role = localStorage.getItem("cds-role") || "admin";
   const [rejectionReason, setRejectionReason] = useState("");
+
+  const docTypeLabels: Record<string, string> = {
+    BUSINESS_LICENSE: t("provider.documents.types.BUSINESS_LICENSE"),
+    INSURANCE: t("provider.documents.types.INSURANCE"),
+    COMMERCIAL_REGISTER: t("provider.documents.types.COMMERCIAL_REGISTER"),
+    OTHER: t("provider.documents.types.OTHER"),
+  };
 
   // Fetch provider with admin detail (includes documents)
   const { data, isLoading, refetch } = useCustom({
@@ -80,11 +82,11 @@ export const ProviderReview = () => {
 
   const handleApprove = async () => {
     Modal.confirm({
-      title: "Firma genehmigen?",
+      title: t("admin.approveConfirm"),
       icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
-      content: "Die Firma wird als AKTIV markiert und kann Angebote einreichen.",
-      okText: "Genehmigen",
-      cancelText: "Abbrechen",
+      content: t("admin.approveDescription"),
+      okText: t("admin.approveProvider"),
+      cancelText: t("common.cancel"),
       onOk: async () => {
         try {
           await axios.patch(
@@ -92,10 +94,10 @@ export const ProviderReview = () => {
             { status: "ACTIVE" },
             { headers: { "X-User-Role": role } }
           );
-          message.success("Firma genehmigt!");
+          message.success(t("admin.approved"));
           refetch();
         } catch (err: unknown) {
-          const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+          const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
           message.error(`Fehler: ${errorMsg}`);
         }
       },
@@ -104,18 +106,18 @@ export const ProviderReview = () => {
 
   const handleSuspend = () => {
     Modal.confirm({
-      title: "Firma sperren?",
+      title: t("admin.suspendConfirm"),
       icon: <ExclamationCircleOutlined />,
       content: (
         <Input.TextArea
-          placeholder="Grund für die Sperrung (optional)"
+          placeholder={t("admin.suspendReason")}
           rows={3}
           onChange={(e) => setRejectionReason(e.target.value)}
         />
       ),
-      okText: "Sperren",
+      okText: t("admin.suspendProvider"),
       okType: "danger",
-      cancelText: "Abbrechen",
+      cancelText: t("common.cancel"),
       onOk: async () => {
         try {
           await axios.patch(
@@ -123,10 +125,10 @@ export const ProviderReview = () => {
             { status: "SUSPENDED", reason: rejectionReason || undefined },
             { headers: { "X-User-Role": role } }
           );
-          message.success("Firma gesperrt.");
+          message.success(t("admin.suspended"));
           refetch();
         } catch (err: unknown) {
-          const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+          const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
           message.error(`Fehler: ${errorMsg}`);
         }
       },
@@ -144,10 +146,10 @@ export const ProviderReview = () => {
         payload,
         { headers: { "X-User-Role": role } }
       );
-      message.success(action === "APPROVE" ? "Dokument bestätigt" : "Dokument abgelehnt");
+      message.success(action === "APPROVE" ? t("admin.docApproved") : t("admin.docRejectedMsg"));
       refetch();
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
       message.error(`Fehler: ${errorMsg}`);
     }
   };
@@ -160,7 +162,7 @@ export const ProviderReview = () => {
   };
 
   if (isLoading) return <Spin size="large" />;
-  if (!provider) return <Empty description="Firma nicht gefunden" />;
+  if (!provider) return <Empty description={t("provider.notFound")} />;
 
   const status = String(provider.status ?? "");
   const canApprove = status === "PENDING" || status === "SUSPENDED";
@@ -168,37 +170,37 @@ export const ProviderReview = () => {
 
   return (
     <Show
-      title={`Firma prüfen: ${String(provider.name ?? "")}`}
+      title={t("admin.providerReview") + ": " + String(provider.name ?? "")}
       headerButtons={
-        <Button onClick={() => navigate("/admin/providers")}>Zurück zur Liste</Button>
+        <Button onClick={() => navigate("/admin/providers")}>{t("admin.backToList")}</Button>
       }
     >
       <Row gutter={24}>
         <Col span={16}>
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="Status" span={2}>
+            <Descriptions.Item label={t("common.status")} span={2}>
               <Tag color={statusColors[status] ?? "default"} style={{ fontSize: 14 }}>
                 {status}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Firma">
+            <Descriptions.Item label={t("provider.name")}>
               <Text strong>{String(provider.name)}</Text>
             </Descriptions.Item>
-            <Descriptions.Item label="E-Mail">
+            <Descriptions.Item label={t("provider.email")}>
               {String(provider.email)}
             </Descriptions.Item>
-            <Descriptions.Item label="Telefon">
+            <Descriptions.Item label={t("provider.phone")}>
               {String(provider.phoneNumber)}
             </Descriptions.Item>
-            <Descriptions.Item label="Steuernummer">
+            <Descriptions.Item label={t("provider.taxNumber")}>
               {String((provider as Record<string, unknown>).taxNumber ?? "—")}
             </Descriptions.Item>
-            <Descriptions.Item label="Registriert am">
+            <Descriptions.Item label={t("provider.registeredAt")}>
               {provider.createdAt
                 ? new Date(String(provider.createdAt)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
-            <Descriptions.Item label="PLZ-Gebiete">
+            <Descriptions.Item label={t("provider.plzAreas")}>
               <Space wrap>
                 {((provider.supportedPostCodePrefixes as string[]) ?? []).map((p) => (
                   <Tag key={p}>{p}</Tag>
@@ -208,7 +210,7 @@ export const ProviderReview = () => {
           </Descriptions>
 
           <Title level={5} style={{ marginTop: 24 }}>
-            Dokumente ({documents.length})
+            {t("admin.documents")} ({documents.length})
           </Title>
 
           {documents.length > 0 ? (
@@ -219,14 +221,14 @@ export const ProviderReview = () => {
               size="small"
             >
               <Table.Column<ProviderDocument>
-                title="Typ"
+                title={t("common.type")}
                 dataIndex="type"
                 render={(type: string) => (
                   <Tag>{docTypeLabels[type] ?? type}</Tag>
                 )}
               />
               <Table.Column<ProviderDocument>
-                title="Datei"
+                title={t("common.file")}
                 render={(_, record) => (
                   <Space>
                     {fileIcon(record.mimeType)}
@@ -238,23 +240,23 @@ export const ProviderReview = () => {
                 )}
               />
               <Table.Column<ProviderDocument>
-                title="Status"
+                title={t("common.status")}
                 render={(_, record) => {
                   if (record.verified) {
-                    return <Tag color="success" icon={<CheckCircleOutlined />}>Bestätigt</Tag>;
+                    return <Tag color="success" icon={<CheckCircleOutlined />}>{t("admin.docVerified")}</Tag>;
                   }
                   if (record.rejectionReason) {
                     return (
                       <Tooltip title={record.rejectionReason}>
-                        <Tag color="error" icon={<CloseCircleOutlined />}>Abgelehnt</Tag>
+                        <Tag color="error" icon={<CloseCircleOutlined />}>{t("admin.docRejected")}</Tag>
                       </Tooltip>
                     );
                   }
-                  return <Tag color="processing">Ausstehend</Tag>;
+                  return <Tag color="processing">{t("admin.docPending")}</Tag>;
                 }}
               />
               <Table.Column<ProviderDocument>
-                title="Aktionen"
+                title={t("common.actions")}
                 render={(_, record) => (
                   <Space>
                     <Button
@@ -262,7 +264,7 @@ export const ProviderReview = () => {
                       icon={<DownloadOutlined />}
                       onClick={() => handleDownload(record.id, record.originalFilename)}
                     >
-                      Download
+                      {t("common.download")}
                     </Button>
                     {!record.verified && (
                       <>
@@ -272,7 +274,7 @@ export const ProviderReview = () => {
                           icon={<CheckCircleOutlined />}
                           onClick={() => handleVerifyDoc(record.id, "APPROVE")}
                         >
-                          OK
+                          {t("admin.approve")}
                         </Button>
                         <Button
                           size="small"
@@ -280,7 +282,7 @@ export const ProviderReview = () => {
                           icon={<CloseCircleOutlined />}
                           onClick={() => handleVerifyDoc(record.id, "REJECT")}
                         >
-                          Ablehnen
+                          {t("admin.reject")}
                         </Button>
                       </>
                     )}
@@ -289,12 +291,12 @@ export const ProviderReview = () => {
               />
             </Table>
           ) : (
-            <Empty description="Keine Dokumente hochgeladen" />
+            <Empty description={t("admin.noDocuments")} />
           )}
         </Col>
 
         <Col span={8}>
-          <Card size="small" title="Admin-Aktionen">
+          <Card size="small" title={t("admin.actions")}>
             <Space direction="vertical" style={{ width: "100%" }}>
               {canApprove && (
                 <Button
@@ -303,7 +305,7 @@ export const ProviderReview = () => {
                   icon={<CheckCircleOutlined />}
                   onClick={handleApprove}
                 >
-                  Firma genehmigen
+                  {t("admin.approveProvider")}
                 </Button>
               )}
               {canSuspend && (
@@ -313,11 +315,11 @@ export const ProviderReview = () => {
                   icon={<CloseCircleOutlined />}
                   onClick={handleSuspend}
                 >
-                  Firma sperren
+                  {t("admin.suspendProvider")}
                 </Button>
               )}
               {!canApprove && !canSuspend && (
-                <Text type="secondary">Keine Aktionen verfügbar</Text>
+                <Text type="secondary">{t("admin.noActions")}</Text>
               )}
             </Space>
           </Card>

@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCustom } from "@refinedev/core";
+import { useTranslation } from "react-i18next";
 import { AddressForm } from "../../components/address-form";
 import { FurniturePicker } from "../../components/furniture-picker";
 
@@ -42,6 +43,7 @@ export const DemandCreate = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { mutate: create, isLoading: creating } = useCreate();
+  const { t } = useTranslation();
 
   // Fetch estate types
   const { data: estateTypesData } = useCustom<EstateType[]>({
@@ -61,10 +63,10 @@ export const DemandCreate = () => {
   });
 
   const steps = [
-    { title: "Adressen", description: "Von & Nach" },
-    { title: "Wohnung", description: "Räume & Möbel" },
-    { title: "Details", description: "Datum & Services" },
-    { title: "Zusammenfassung", description: "Prüfen & Senden" },
+    { title: t("demand.addresses"), description: t("demand.fromTo") },
+    { title: t("demand.apartment"), description: t("demand.roomsFurniture") },
+    { title: t("demand.details"), description: t("demand.dateServices") },
+    { title: t("demand.summary"), description: t("demand.checkSend") },
   ];
 
   const next = async () => {
@@ -141,7 +143,7 @@ export const DemandCreate = () => {
       { resource: "demands", values: payload },
       {
         onSuccess: () => {
-          message.success("Umzugsanfrage erstellt!");
+          message.success(t("demand.created"));
           navigate("/demands");
         },
         onError: (error) => {
@@ -153,7 +155,7 @@ export const DemandCreate = () => {
 
   return (
     <Create
-      title="Neue Umzugsanfrage"
+      title={t("demand.create")}
       footerButtons={() => null}
     >
       <Steps current={current} items={steps} style={{ marginBottom: 32 }} />
@@ -167,13 +169,13 @@ export const DemandCreate = () => {
         <div style={{ display: current === 0 ? "block" : "none" }}>
           <Row gutter={32}>
             <Col span={12}>
-              <Card title="Von (Auszugsadresse)" size="small">
-                <AddressForm namePrefix={["from", "address"]} label="Auszugsadresse" />
+              <Card title={t("demand.from")} size="small">
+                <AddressForm namePrefix={["from", "address"]} label={t("demand.from")} />
               </Card>
             </Col>
             <Col span={12}>
-              <Card title="Nach (Einzugsadresse)" size="small">
-                <AddressForm namePrefix={["to", "address"]} label="Einzugsadresse" />
+              <Card title={t("demand.to")} size="small">
+                <AddressForm namePrefix={["to", "address"]} label={t("demand.to")} />
               </Card>
             </Col>
           </Row>
@@ -181,17 +183,17 @@ export const DemandCreate = () => {
 
         {/* Step 1: Estate + Furniture */}
         <div style={{ display: current === 1 ? "block" : "none" }}>
-          <Card title="Wohnungsdetails (Auszug)" size="small" style={{ marginBottom: 16 }}>
+          <Card title={t("demand.apartmentDetails")} size="small" style={{ marginBottom: 16 }}>
             <Row gutter={16}>
               <Col span={8}>
                 <Form.Item
                   name={["from", "estate", "estateTypeId"]}
-                  label="Wohnungstyp"
-                  rules={[{ required: true, message: "Bitte auswählen" }]}
+                  label={t("demand.estateType")}
+                  rules={[{ required: true, message: t("validation.selectRequired") }]}
                 >
-                  <Select placeholder="Typ auswählen">
-                    {estateTypes.map((t) => (
-                      <Select.Option key={t.id} value={t.id}>{t.name}</Select.Option>
+                  <Select placeholder={t("validation.selectRequired")}>
+                    {estateTypes.map((et) => (
+                      <Select.Option key={et.id} value={et.id}>{et.name}</Select.Option>
                     ))}
                   </Select>
                 </Form.Item>
@@ -199,8 +201,8 @@ export const DemandCreate = () => {
               <Col span={8}>
                 <Form.Item
                   name={["from", "estate", "totalSquareMeters"]}
-                  label="Wohnfläche (m²)"
-                  rules={[{ required: true, message: "Erforderlich" }]}
+                  label={t("demand.squareMeters")}
+                  rules={[{ required: true, message: t("validation.required") }]}
                 >
                   <InputNumber min={1} max={9999} style={{ width: "100%" }} />
                 </Form.Item>
@@ -208,8 +210,8 @@ export const DemandCreate = () => {
               <Col span={8}>
                 <Form.Item
                   name={["from", "estate", "numberOfRooms"]}
-                  label="Anzahl Zimmer"
-                  rules={[{ required: true, message: "Erforderlich" }]}
+                  label={t("demand.rooms")}
+                  rules={[{ required: true, message: t("validation.required") }]}
                 >
                   <InputNumber min={1} max={20} style={{ width: "100%" }} />
                 </Form.Item>
@@ -217,9 +219,9 @@ export const DemandCreate = () => {
             </Row>
           </Card>
 
-          <Card title="Möbelinventar" size="small">
+          <Card title={t("demand.furniture")} size="small">
             <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
-              Wählen Sie die Möbel aus, die transportiert werden sollen.
+              {t("demand.furnitureHint")}
             </Text>
             <Form.Item name="furnitureItems" noStyle>
               <FurniturePicker />
@@ -229,13 +231,13 @@ export const DemandCreate = () => {
 
         {/* Step 2: Date + Services */}
         <div style={{ display: current === 2 ? "block" : "none" }}>
-          <Card title="Umzugsdatum & Services" size="small">
+          <Card title={t("demand.dateRange")} size="small">
             <Row gutter={16}>
               <Col span={8}>
                 <Form.Item
                   name="preferredDateStart"
-                  label="Frühestes Datum"
-                  rules={[{ required: true, message: "Datum erforderlich" }]}
+                  label={t("demand.earliestDate")}
+                  rules={[{ required: true, message: t("validation.dateRequired") }]}
                 >
                   <DatePicker style={{ width: "100%" }} format="DD.MM.YYYY" />
                 </Form.Item>
@@ -243,8 +245,8 @@ export const DemandCreate = () => {
               <Col span={8}>
                 <Form.Item
                   name="preferredDateEnd"
-                  label="Spätestes Datum"
-                  rules={[{ required: true, message: "Datum erforderlich" }]}
+                  label={t("demand.latestDate")}
+                  rules={[{ required: true, message: t("validation.dateRequired") }]}
                 >
                   <DatePicker style={{ width: "100%" }} format="DD.MM.YYYY" />
                 </Form.Item>
@@ -252,7 +254,7 @@ export const DemandCreate = () => {
               <Col span={8}>
                 <Form.Item
                   name="numberOfPeople"
-                  label="Anzahl Personen"
+                  label={t("demand.persons")}
                   rules={[{ required: true }]}
                 >
                   <InputNumber min={1} max={20} style={{ width: "100%" }} />
@@ -261,57 +263,57 @@ export const DemandCreate = () => {
             </Row>
 
             <Form.Item name="dateFlexibility" valuePropName="checked">
-              <Checkbox>Datum ist flexibel</Checkbox>
+              <Checkbox>{t("demand.flexibleDate")}</Checkbox>
             </Form.Item>
 
-            <Divider>Zusätzliche Services</Divider>
+            <Divider>{t("demand.additionalServices")}</Divider>
 
             <Row gutter={16}>
               <Col span={6}>
                 <Form.Item name={["from", "estate", "furnitureMontage"]} valuePropName="checked">
-                  <Checkbox>Möbelmontage</Checkbox>
+                  <Checkbox>{t("demand.furnitureMontage")}</Checkbox>
                 </Form.Item>
               </Col>
               <Col span={6}>
                 <Form.Item name={["from", "estate", "kitchenMontage"]} valuePropName="checked">
-                  <Checkbox>Küchenmontage</Checkbox>
+                  <Checkbox>{t("demand.kitchenMontage")}</Checkbox>
                 </Form.Item>
               </Col>
               <Col span={6}>
                 <Form.Item name={["from", "estate", "packingService"]} valuePropName="checked">
-                  <Checkbox>Verpackungsservice</Checkbox>
+                  <Checkbox>{t("demand.packingService")}</Checkbox>
                 </Form.Item>
               </Col>
               <Col span={6}>
                 <Form.Item name={["from", "estate", "halteverbotRequired"]} valuePropName="checked">
-                  <Checkbox>Halteverbot</Checkbox>
+                  <Checkbox>{t("demand.halteverbot")}</Checkbox>
                 </Form.Item>
               </Col>
             </Row>
 
             <Row gutter={16}>
               <Col span={8}>
-                <Form.Item name="serviceType" label="Umzugsart">
+                <Form.Item name="serviceType" label={t("demand.serviceType")}>
                   <Select>
-                    <Select.Option value="PRIVATE_MOVE">Privatumzug</Select.Option>
-                    <Select.Option value="COMMERCIAL_MOVE">Firmenumzug</Select.Option>
-                    <Select.Option value="FURNITURE_TRANSPORT">Möbeltransport</Select.Option>
+                    <Select.Option value="PRIVATE_MOVE">{t("demand.serviceTypes.PRIVATE_MOVE")}</Select.Option>
+                    <Select.Option value="COMMERCIAL_MOVE">{t("demand.serviceTypes.COMMERCIAL_MOVE")}</Select.Option>
+                    <Select.Option value="FURNITURE_TRANSPORT">{t("demand.serviceTypes.FURNITURE_TRANSPORT")}</Select.Option>
                   </Select>
                 </Form.Item>
               </Col>
               <Col span={8}>
-                <Form.Item name="transportType" label="Transportart">
+                <Form.Item name="transportType" label={t("demand.transportType")}>
                   <Select>
-                    <Select.Option value="LOCAL">Nahverkehr</Select.Option>
-                    <Select.Option value="LONG_DISTANCE">Fernverkehr</Select.Option>
-                    <Select.Option value="INTERNATIONAL">International</Select.Option>
+                    <Select.Option value="LOCAL">{t("demand.transportTypes.LOCAL")}</Select.Option>
+                    <Select.Option value="LONG_DISTANCE">{t("demand.transportTypes.LONG_DISTANCE")}</Select.Option>
+                    <Select.Option value="INTERNATIONAL">{t("demand.transportTypes.INTERNATIONAL")}</Select.Option>
                   </Select>
                 </Form.Item>
               </Col>
             </Row>
 
-            <Form.Item name="additionalNotes" label="Anmerkungen">
-              <TextArea rows={3} placeholder="Besonderheiten, Wünsche, Hinweise..." maxLength={2000} showCount />
+            <Form.Item name="additionalNotes" label={t("demand.notes")}>
+              <TextArea rows={3} placeholder={t("demand.notesPlaceholder")} maxLength={2000} showCount />
             </Form.Item>
           </Card>
         </div>
@@ -324,17 +326,17 @@ export const DemandCreate = () => {
 
       <div style={{ marginTop: 24, display: "flex", justifyContent: "space-between" }}>
         <Button disabled={current === 0} onClick={() => setCurrent(current - 1)}>
-          Zurück
+          {t("common.back")}
         </Button>
         <Space>
           {current < steps.length - 1 && (
             <Button type="primary" onClick={next}>
-              Weiter
+              {t("common.next")}
             </Button>
           )}
           {current === steps.length - 1 && (
             <Button type="primary" loading={creating} onClick={handleSubmit}>
-              Anfrage absenden
+              {t("demand.submitDemand")}
             </Button>
           )}
         </Space>
@@ -345,6 +347,7 @@ export const DemandCreate = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SummaryStep = ({ form }: { form: any }) => {
+  const { t } = useTranslation();
   const values = form.getFieldsValue(true);
   const fromAddr = values.from?.address;
   const toAddr = values.to?.address;
@@ -352,19 +355,19 @@ const SummaryStep = ({ form }: { form: any }) => {
   const furniture = values.furnitureItems ?? [];
 
   return (
-    <Card title="Zusammenfassung" size="small">
+    <Card title={t("demand.summary")} size="small">
       <Row gutter={32}>
         <Col span={12}>
-          <Title level={5}>Von</Title>
+          <Title level={5}>{t("demand.from")}</Title>
           <Text>
             {fromAddr?.street} {fromAddr?.houseNumber}
             <br />
             {fromAddr?.postCode} {fromAddr?.placeName}
-            {fromAddr?.floor != null && <><br />Stockwerk: {fromAddr.floor}</>}
+            {fromAddr?.floor != null && <><br />{t("demand.floor")}: {fromAddr.floor}</>}
           </Text>
         </Col>
         <Col span={12}>
-          <Title level={5}>Nach</Title>
+          <Title level={5}>{t("demand.to")}</Title>
           <Text>
             {toAddr?.street} {toAddr?.houseNumber}
             <br />
@@ -377,14 +380,14 @@ const SummaryStep = ({ form }: { form: any }) => {
 
       <Row gutter={32}>
         <Col span={12}>
-          <Title level={5}>Wohnung</Title>
+          <Title level={5}>{t("demand.apartment")}</Title>
           <Text>
-            {estate?.totalSquareMeters} m² · {estate?.numberOfRooms} Zimmer
+            {estate?.totalSquareMeters} m² · {estate?.numberOfRooms} {t("demand.rooms")}
           </Text>
         </Col>
         <Col span={12}>
-          <Title level={5}>Möbel</Title>
-          <Text>{furniture.length} Positionen ausgewählt</Text>
+          <Title level={5}>{t("demand.furniture")}</Title>
+          <Text>{furniture.length} {t("demand.itemsSelected")}</Text>
         </Col>
       </Row>
 
@@ -392,21 +395,21 @@ const SummaryStep = ({ form }: { form: any }) => {
 
       <Row gutter={32}>
         <Col span={12}>
-          <Title level={5}>Datum</Title>
+          <Title level={5}>{t("demand.dateServices")}</Title>
           <Text>
             {values.preferredDateStart?.format?.("DD.MM.YYYY") || "—"} bis{" "}
             {values.preferredDateEnd?.format?.("DD.MM.YYYY") || "—"}
           </Text>
         </Col>
         <Col span={12}>
-          <Title level={5}>Services</Title>
+          <Title level={5}>{t("demand.additionalServices")}</Title>
           <Space direction="vertical" size={0}>
-            {estate?.furnitureMontage && <Text>Möbelmontage</Text>}
-            {estate?.kitchenMontage && <Text>Küchenmontage</Text>}
-            {estate?.packingService && <Text>Verpackungsservice</Text>}
-            {estate?.halteverbotRequired && <Text>Halteverbot</Text>}
+            {estate?.furnitureMontage && <Text>{t("demand.furnitureMontage")}</Text>}
+            {estate?.kitchenMontage && <Text>{t("demand.kitchenMontage")}</Text>}
+            {estate?.packingService && <Text>{t("demand.packingService")}</Text>}
+            {estate?.halteverbotRequired && <Text>{t("demand.halteverbot")}</Text>}
             {!estate?.furnitureMontage && !estate?.kitchenMontage && !estate?.packingService && !estate?.halteverbotRequired && (
-              <Text type="secondary">Keine zusätzlichen Services</Text>
+              <Text type="secondary">{t("demand.noAdditionalServices")}</Text>
             )}
           </Space>
         </Col>
@@ -415,7 +418,7 @@ const SummaryStep = ({ form }: { form: any }) => {
       {values.additionalNotes && (
         <>
           <Divider />
-          <Title level={5}>Anmerkungen</Title>
+          <Title level={5}>{t("demand.notes")}</Title>
           <Text>{values.additionalNotes}</Text>
         </>
       )}

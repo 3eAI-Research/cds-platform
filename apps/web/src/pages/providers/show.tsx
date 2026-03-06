@@ -22,6 +22,7 @@ import {
   TrophyOutlined,
 } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Title, Text } = Typography;
 
@@ -40,6 +41,7 @@ interface Review {
 }
 
 export const ProviderShow = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const role = localStorage.getItem("cds-role") || "customer";
 
@@ -65,7 +67,7 @@ export const ProviderShow = () => {
   const reviews = reviewsData?.data?.items ?? [];
 
   if (isLoading) return <Spin size="large" />;
-  if (!provider) return <Empty description="Unternehmen nicht gefunden" />;
+  if (!provider) return <Empty description={t("provider.notFound")} />;
 
   const status = String(provider.status ?? "");
   const prefixes = (provider.supportedPostCodePrefixes as string[]) ?? [];
@@ -75,24 +77,24 @@ export const ProviderShow = () => {
       <Row gutter={24}>
         <Col span={16}>
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="Status">
+            <Descriptions.Item label={t("common.status")}>
               <Tag color={statusColors[status] ?? "default"}>{status}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Firma">
+            <Descriptions.Item label={t("provider.name")}>
               <Text strong>{String(provider.name)}</Text>
             </Descriptions.Item>
-            <Descriptions.Item label="E-Mail">
+            <Descriptions.Item label={t("provider.email")}>
               <MailOutlined /> {String(provider.email)}
             </Descriptions.Item>
-            <Descriptions.Item label="Telefon">
+            <Descriptions.Item label={t("provider.phone")}>
               <PhoneOutlined /> {String(provider.phoneNumber)}
             </Descriptions.Item>
-            <Descriptions.Item label="Registriert am">
+            <Descriptions.Item label={t("provider.registeredAt")}>
               {provider.createdAt
                 ? new Date(String(provider.createdAt)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
-            <Descriptions.Item label="PLZ-Gebiete">
+            <Descriptions.Item label={t("provider.plzAreas")}>
               <Space wrap>
                 {prefixes.map((p) => (
                   <Tag key={p} icon={<EnvironmentOutlined />}>
@@ -100,7 +102,7 @@ export const ProviderShow = () => {
                   </Tag>
                 ))}
                 {prefixes.length === 0 && (
-                  <Text type="secondary">Keine angegeben</Text>
+                  <Text type="secondary">{t("provider.noPrefixes")}</Text>
                 )}
               </Space>
             </Descriptions.Item>
@@ -126,14 +128,14 @@ export const ProviderShow = () => {
               </Col>
               <Col span={12}>
                 <Statistic
-                  title="Bewertungen"
+                  title={t("provider.reviews")}
                   value={Number(provider.reviewCount) || 0}
                   prefix={<StarOutlined />}
                 />
               </Col>
               <Col span={12}>
                 <Statistic
-                  title="Aufträge"
+                  title={t("provider.completedJobs")}
                   value={Number(provider.completedJobCount) || 0}
                   prefix={<TrophyOutlined />}
                 />
@@ -144,7 +146,7 @@ export const ProviderShow = () => {
       </Row>
 
       <Title level={5} style={{ marginTop: 24 }}>
-        Kundenbewertungen ({reviews.length})
+        {t("provider.reviews")} ({reviews.length})
       </Title>
 
       {reviews.length > 0 ? (
@@ -155,25 +157,25 @@ export const ProviderShow = () => {
           size="small"
         >
           <Table.Column<Review>
-            title="Bewertung"
+            title={t("provider.rating")}
             dataIndex="rating"
             width={160}
             render={(val: number) => <Rate disabled value={val} style={{ fontSize: 14 }} />}
           />
           <Table.Column<Review>
-            title="Kommentar"
+            title={t("review.comment")}
             dataIndex="comment"
             render={(val?: string) => val || <Text type="secondary">—</Text>}
           />
           <Table.Column<Review>
-            title="Datum"
+            title={t("common.created")}
             dataIndex="createdAt"
             width={100}
             render={(d: string) => new Date(d).toLocaleDateString("de-DE")}
           />
         </Table>
       ) : (
-        <Empty description="Noch keine Bewertungen" />
+        <Empty description={t("review.noReviews")} />
       )}
     </Show>
   );

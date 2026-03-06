@@ -6,6 +6,7 @@ import {
   EnvironmentOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -27,6 +28,7 @@ interface Provider {
 }
 
 export const PendingProviders = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = localStorage.getItem("cds-role") || "admin";
 
@@ -42,7 +44,7 @@ export const PendingProviders = () => {
   const providers = data?.data?.items ?? [];
 
   return (
-    <List title="Firma-Genehmigungen">
+    <List title={t("admin.pendingProviders")}>
       <Table<Provider>
         dataSource={providers}
         rowKey="id"
@@ -51,27 +53,27 @@ export const PendingProviders = () => {
         size="small"
       >
         <Table.Column<Provider>
-          title="Firma"
+          title={t("provider.name")}
           dataIndex="name"
           render={(name: string) => <Text strong>{name}</Text>}
         />
         <Table.Column<Provider>
-          title="E-Mail"
+          title={t("provider.email")}
           dataIndex="email"
         />
         <Table.Column<Provider>
-          title="Telefon"
+          title={t("provider.phone")}
           dataIndex="phoneNumber"
         />
         <Table.Column<Provider>
-          title="Status"
+          title={t("common.status")}
           dataIndex="status"
           render={(status: string) => (
             <Tag color={statusColors[status] ?? "default"}>{status}</Tag>
           )}
         />
         <Table.Column<Provider>
-          title="PLZ-Gebiete"
+          title={t("provider.plzAreas")}
           dataIndex="supportedPostCodePrefixes"
           render={(prefixes: string[]) => (
             <Space wrap size={2}>
@@ -89,12 +91,12 @@ export const PendingProviders = () => {
           )}
         />
         <Table.Column<Provider>
-          title="Registriert"
+          title={t("common.created")}
           dataIndex="createdAt"
           render={(d: string) => new Date(d).toLocaleDateString("de-DE")}
         />
         <Table.Column<Provider>
-          title="Aktionen"
+          title={t("common.actions")}
           render={(_, record) => (
             <Space>
               <Button
@@ -102,7 +104,7 @@ export const PendingProviders = () => {
                 icon={<EyeOutlined />}
                 onClick={() => navigate(`/admin/providers/${record.id}`)}
               >
-                Prüfen
+                {t("admin.review")}
               </Button>
             </Space>
           )}

@@ -22,6 +22,7 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useState } from "react";
 
@@ -48,6 +49,7 @@ const statusStep: Record<string, number> = {
 export const ContractShow = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const role = localStorage.getItem("cds-role") || "customer";
   const [cancelReason, setCancelReason] = useState("");
 
@@ -69,28 +71,28 @@ export const ContractShow = () => {
       await axios.patch(endpoint, null, {
         headers: { "X-User-Role": role },
       });
-      message.success("Vertrag angenommen!");
+      message.success(t("contract.accepted"));
       refetch();
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
       message.error(`Fehler: ${errorMsg}`);
     }
   };
 
   const handleCancel = () => {
     Modal.confirm({
-      title: "Vertrag stornieren?",
+      title: t("contract.cancelConfirm"),
       icon: <ExclamationCircleOutlined />,
       content: (
         <Input.TextArea
-          placeholder="Stornierungsgrund (optional)"
+          placeholder={t("contract.cancelReason")}
           rows={3}
           onChange={(e) => setCancelReason(e.target.value)}
         />
       ),
-      okText: "Stornieren",
+      okText: t("contract.cancel"),
       okType: "danger",
-      cancelText: "Abbrechen",
+      cancelText: t("common.cancel"),
       onOk: async () => {
         try {
           await axios.patch(
@@ -98,10 +100,10 @@ export const ContractShow = () => {
             { reason: cancelReason || undefined },
             { headers: { "X-User-Role": role } }
           );
-          message.success("Vertrag storniert.");
+          message.success(t("contract.cancelledMsg"));
           refetch();
         } catch (err: unknown) {
-          const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+          const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
           message.error(`Fehler: ${errorMsg}`);
         }
       },
@@ -109,7 +111,7 @@ export const ContractShow = () => {
   };
 
   if (isLoading) return <Spin size="large" />;
-  if (!contract) return <Empty description="Vertrag nicht gefunden" />;
+  if (!contract) return <Empty description={t("contract.notFound")} />;
 
   const status = String(contract.status ?? "");
   const canAccept =
@@ -121,62 +123,62 @@ export const ContractShow = () => {
   const canReview = status === "ACTIVE" || status === "COMPLETED";
 
   return (
-    <Show title={`Vertrag ${String(contract.id ?? "").slice(0, 8)}`}>
+    <Show title={`${t("contract.title")} ${String(contract.id ?? "").slice(0, 8)}`}>
       <Steps
         current={statusStep[status] ?? 0}
         status={status === "CANCELLED" ? "error" : undefined}
         style={{ marginBottom: 24 }}
         items={[
-          { title: "Entwurf" },
-          { title: "Bestätigung ausstehend" },
-          { title: "Aktiv" },
-          { title: "Abgeschlossen" },
+          { title: t("contract.draft") },
+          { title: t("contract.pendingConfirmation") },
+          { title: t("contract.active") },
+          { title: t("contract.completed") },
         ]}
       />
 
       <Row gutter={24}>
         <Col span={16}>
           <Descriptions bordered column={2} size="small">
-            <Descriptions.Item label="Status" span={2}>
+            <Descriptions.Item label={t("common.status")} span={2}>
               <Tag color={statusColors[status] ?? "default"}>{status}</Tag>
               {contract.customerAcceptedAt != null && (
                 <Tag color="green" icon={<CheckCircleOutlined />}>
-                  Kunde bestätigt
+                  {t("contract.customerConfirmed")}
                 </Tag>
               )}
               {contract.providerAcceptedAt != null && (
                 <Tag color="green" icon={<CheckCircleOutlined />}>
-                  Anbieter bestätigt
+                  {t("contract.providerConfirmed")}
                 </Tag>
               )}
             </Descriptions.Item>
 
-            <Descriptions.Item label="Vereinbarter Preis">
+            <Descriptions.Item label={t("contract.agreedPrice")}>
               <Text strong>
                 {((Number(contract.agreedPriceAmount) || 0) / 100).toFixed(2)} EUR
               </Text>
             </Descriptions.Item>
-            <Descriptions.Item label="MwSt.">
+            <Descriptions.Item label={t("offer.vat")}>
               {((Number(contract.vatAmount) || 0) / 100).toFixed(2)} EUR
             </Descriptions.Item>
 
-            <Descriptions.Item label="Provision (CDS)">
+            <Descriptions.Item label={t("contract.commission")}>
               <Text type="danger">
                 {((Number(contract.commissionAmount) || 0) / 100).toFixed(2)} EUR
               </Text>
             </Descriptions.Item>
-            <Descriptions.Item label="Servicedatum">
+            <Descriptions.Item label={t("contract.serviceDate")}>
               {contract.serviceDate
                 ? new Date(String(contract.serviceDate)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
 
-            <Descriptions.Item label="Erstellt am">
+            <Descriptions.Item label={t("contract.createdAt")}>
               {contract.createdAt
                 ? new Date(String(contract.createdAt)).toLocaleDateString("de-DE")
                 : "—"}
             </Descriptions.Item>
-            <Descriptions.Item label="Anfrage-ID">
+            <Descriptions.Item label={t("contract.demandId")}>
               <Button
                 type="link"
                 size="small"
@@ -192,7 +194,7 @@ export const ContractShow = () => {
           {String(contract.serviceDescription ?? "") && (
             <Card
               size="small"
-              title="Leistungsbeschreibung"
+              title={t("contract.serviceDescription")}
               style={{ marginTop: 16 }}
             >
               <Text>{String(contract.serviceDescription)}</Text>
@@ -202,15 +204,15 @@ export const ContractShow = () => {
           {status === "CANCELLED" && (
             <Card
               size="small"
-              title="Stornierung"
+              title={t("contract.cancellation")}
               style={{ marginTop: 16 }}
             >
               <Text type="danger">
-                {String(contract.cancellationReason ?? "Kein Grund angegeben")}
+                {String(contract.cancellationReason ?? t("contract.noReasonGiven"))}
               </Text>
               <br />
               <Text type="secondary">
-                Storniert am:{" "}
+                {t("contract.cancelledAt")}:{" "}
                 {contract.cancelledAt
                   ? new Date(String(contract.cancelledAt)).toLocaleDateString("de-DE")
                   : "—"}
@@ -220,7 +222,7 @@ export const ContractShow = () => {
         </Col>
 
         <Col span={8}>
-          <Card size="small" title="Aktionen">
+          <Card size="small" title={t("common.actions")}>
             <Space direction="vertical" style={{ width: "100%" }}>
               {canAccept && (
                 <Button
@@ -229,7 +231,7 @@ export const ContractShow = () => {
                   icon={<CheckCircleOutlined />}
                   onClick={handleAccept}
                 >
-                  Vertrag annehmen
+                  {t("contract.accept")}
                 </Button>
               )}
               {canReview && (
@@ -237,7 +239,7 @@ export const ContractShow = () => {
                   block
                   onClick={() => navigate(`/contracts/${id}/review`)}
                 >
-                  Bewertung abgeben
+                  {t("review.submit")}
                 </Button>
               )}
               {canCancel && (
@@ -247,26 +249,26 @@ export const ContractShow = () => {
                   icon={<CloseCircleOutlined />}
                   onClick={handleCancel}
                 >
-                  Vertrag stornieren
+                  {t("contract.cancel")}
                 </Button>
               )}
               {!canAccept && !canReview && !canCancel && (
-                <Text type="secondary">Keine Aktionen verfügbar</Text>
+                <Text type="secondary">{t("common.noActions")}</Text>
               )}
             </Space>
           </Card>
 
-          <Card size="small" title="IDs" style={{ marginTop: 16 }}>
+          <Card size="small" title={t("contract.ids")} style={{ marginTop: 16 }}>
             <Space direction="vertical" size={4} style={{ width: "100%" }}>
               <div>
-                <Text type="secondary">Vertrag-ID</Text>
+                <Text type="secondary">{t("contract.contractId")}</Text>
                 <br />
                 <Text copyable style={{ fontSize: 12 }}>
                   {String(contract.id)}
                 </Text>
               </div>
               <div>
-                <Text type="secondary">Angebot-ID</Text>
+                <Text type="secondary">{t("contract.offerId")}</Text>
                 <br />
                 <Text copyable style={{ fontSize: 12 }}>
                   {String(contract.offerId ?? "")}

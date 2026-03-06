@@ -1,5 +1,6 @@
 import { Form, Input, InputNumber, Select, Row, Col } from "antd";
 import { PlzSearch } from "./plz-search";
+import { useTranslation } from "react-i18next";
 
 interface AddressFormProps {
   namePrefix: string[];
@@ -7,6 +8,7 @@ interface AddressFormProps {
 }
 
 export const AddressForm = ({ namePrefix, label }: AddressFormProps) => {
+  const { t } = useTranslation();
   const form = Form.useFormInstance();
 
   return (
@@ -16,17 +18,17 @@ export const AddressForm = ({ namePrefix, label }: AddressFormProps) => {
           <Col span={16}>
             <Form.Item
               name={[...namePrefix, "street"]}
-              rules={[{ required: true, message: "Straße erforderlich" }]}
+              rules={[{ required: true, message: t("validation.streetRequired") }]}
             >
-              <Input placeholder="Straße" />
+              <Input placeholder={t("address.street")} />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
               name={[...namePrefix, "houseNumber"]}
-              rules={[{ required: true, message: "Hausnr." }]}
+              rules={[{ required: true, message: t("validation.houseNumberRequired") }]}
             >
-              <Input placeholder="Hausnr." />
+              <Input placeholder={t("address.houseNumber")} />
             </Form.Item>
           </Col>
         </Row>
@@ -36,10 +38,10 @@ export const AddressForm = ({ namePrefix, label }: AddressFormProps) => {
         <Col span={8}>
           <Form.Item
             name={[...namePrefix, "postCode"]}
-            rules={[{ required: true, message: "PLZ erforderlich" }]}
+            rules={[{ required: true, message: t("validation.postCodeRequired") }]}
           >
             <PlzSearch
-              placeholder="PLZ"
+              placeholder={t("address.postCode")}
               onChange={(val, place) => {
                 form.setFieldValue([...namePrefix, "postCode"], val);
                 if (place) {
@@ -52,22 +54,22 @@ export const AddressForm = ({ namePrefix, label }: AddressFormProps) => {
         <Col span={16}>
           <Form.Item
             name={[...namePrefix, "placeName"]}
-            rules={[{ required: true, message: "Ort erforderlich" }]}
+            rules={[{ required: true, message: t("validation.cityRequired") }]}
           >
-            <Input placeholder="Ort" />
+            <Input placeholder={t("address.city")} />
           </Form.Item>
         </Col>
       </Row>
 
       <Row gutter={16}>
         <Col span={8}>
-          <Form.Item name={[...namePrefix, "floor"]} label="Stockwerk">
+          <Form.Item name={[...namePrefix, "floor"]} label={t("address.floor")}>
             <InputNumber min={-2} max={99} placeholder="z.B. 3" style={{ width: "100%" }} />
           </Form.Item>
         </Col>
         <Col span={16}>
-          <Form.Item name={[...namePrefix, "additionalInfo"]} label="Zusatzinfo">
-            <Input placeholder="z.B. Hinterhaus, Aufzug vorhanden" />
+          <Form.Item name={[...namePrefix, "additionalInfo"]} label={t("address.additionalInfo")}>
+            <Input placeholder={t("address.additionalInfoPlaceholder")} />
           </Form.Item>
         </Col>
       </Row>
@@ -78,12 +80,12 @@ export const AddressForm = ({ namePrefix, label }: AddressFormProps) => {
 
       <Form.Item
         name={[...namePrefix, "elevatorType"]}
-        label="Aufzug"
+        label={t("address.elevator")}
       >
-        <Select placeholder="Aufzug auswählen" allowClear>
-          <Select.Option value="NONE">Kein Aufzug</Select.Option>
-          <Select.Option value="PERSONAL">Personenaufzug</Select.Option>
-          <Select.Option value="FREIGHT">Lastenaufzug</Select.Option>
+        <Select placeholder={t("address.elevator")} allowClear>
+          <Select.Option value="NONE">{t("address.elevatorNone")}</Select.Option>
+          <Select.Option value="PERSONAL">{t("address.elevatorPersonal")}</Select.Option>
+          <Select.Option value="FREIGHT">{t("address.elevatorFreight")}</Select.Option>
         </Select>
       </Form.Item>
     </>

@@ -3,6 +3,7 @@ import { Badge, Button, Dropdown, List, Typography, Space, Empty } from "antd";
 import { BellOutlined, CheckOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const { Text } = Typography;
 
@@ -16,6 +17,7 @@ interface Notification {
 }
 
 export const NotificationBell = () => {
+  const { t } = useTranslation();
   const role = localStorage.getItem("cds-role") || "customer";
   const [open, setOpen] = useState(false);
 
@@ -73,10 +75,10 @@ export const NotificationBell = () => {
           alignItems: "center",
         }}
       >
-        <Text strong>Benachrichtigungen</Text>
+        <Text strong>{t("notification.title")}</Text>
         {unreadCount > 0 && (
           <Button type="link" size="small" onClick={markAllRead}>
-            <CheckOutlined /> Alle gelesen
+            <CheckOutlined /> {t("notification.markAllRead")}
           </Button>
         )}
       </div>
@@ -123,7 +125,7 @@ export const NotificationBell = () => {
         />
       ) : (
         <Empty
-          description="Keine Benachrichtigungen"
+          description={t("notification.empty")}
           style={{ padding: 24 }}
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />

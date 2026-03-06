@@ -21,6 +21,7 @@ import {
 } from "@ant-design/icons";
 import type { UploadFile } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { AddressForm } from "../../components/address-form";
 import axios from "axios";
 import { useState } from "react";
@@ -40,13 +41,6 @@ const PLZ_PREFIXES = [
   "90", "91", "92", "93", "94", "95", "96", "97", "98", "99",
 ];
 
-const DOCUMENT_TYPES = [
-  { value: "BUSINESS_LICENSE", label: "Gewerbeschein", icon: <FileProtectOutlined /> },
-  { value: "INSURANCE", label: "Versicherungsnachweis", icon: <SafetyCertificateOutlined /> },
-  { value: "COMMERCIAL_REGISTER", label: "Handelsregisterauszug", icon: <BankOutlined /> },
-  { value: "OTHER", label: "Sonstiges Dokument", icon: <FileOutlined /> },
-];
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 
@@ -55,13 +49,23 @@ interface DocumentUpload {
   fileList: UploadFile[];
 }
 
+const getDocumentTypes = (t: (key: string) => string) => [
+  { value: "BUSINESS_LICENSE", label: t("provider.documents.types.BUSINESS_LICENSE"), icon: <FileProtectOutlined /> },
+  { value: "INSURANCE", label: t("provider.documents.types.INSURANCE"), icon: <SafetyCertificateOutlined /> },
+  { value: "COMMERCIAL_REGISTER", label: t("provider.documents.types.COMMERCIAL_REGISTER"), icon: <BankOutlined /> },
+  { value: "OTHER", label: t("provider.documents.types.OTHER"), icon: <FileOutlined /> },
+];
+
 export const ProviderCreate = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [documents, setDocuments] = useState<DocumentUpload[]>([
     { type: "BUSINESS_LICENSE", fileList: [] },
   ]);
+
+  const DOCUMENT_TYPES = getDocumentTypes(t);
 
   const addDocumentSlot = () => {
     setDocuments((prev) => [...prev, { type: "OTHER", fileList: [] }]);
@@ -131,12 +135,12 @@ export const ProviderCreate = () => {
 
       message.success(
         docsToUpload.length > 0
-          ? "Firma registriert und Dokumente hochgeladen!"
-          : "Firma erfolgreich registriert!"
+          ? t("provider.registeredWithDocs")
+          : t("provider.registered")
       );
       navigate("/providers");
     } catch (err: unknown) {
-      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      const errorMsg = err instanceof Error ? err.message : t("common.unknownError");
       message.error(`Fehler: ${errorMsg}`);
     } finally {
       setSubmitting(false);
@@ -144,15 +148,15 @@ export const ProviderCreate = () => {
   };
 
   return (
-    <Create title="Firma registrieren" footerButtons={() => null}>
+    <Create title={t("provider.register")} footerButtons={() => null}>
       <Form form={form} layout="vertical">
         <Row gutter={24}>
           <Col span={12}>
-            <Card title="Firmendaten" size="small" style={{ marginBottom: 16 }}>
+            <Card title={t("provider.companyData")} size="small" style={{ marginBottom: 16 }}>
               <Form.Item
                 name="name"
-                label="Firmenname"
-                rules={[{ required: true, message: "Firmenname erforderlich" }]}
+                label={t("provider.name")}
+                rules={[{ required: true, message: t("provider.companyNameRequired") }]}
               >
                 <Input placeholder="z.B. Müller Umzüge GmbH" />
               </Form.Item>
@@ -161,10 +165,10 @@ export const ProviderCreate = () => {
                 <Col span={12}>
                   <Form.Item
                     name="email"
-                    label="E-Mail"
+                    label={t("provider.email")}
                     rules={[
-                      { required: true, message: "E-Mail erforderlich" },
-                      { type: "email", message: "Ungültige E-Mail" },
+                      { required: true, message: t("provider.emailRequired") },
+                      { type: "email", message: t("validation.emailInvalid") },
                     ]}
                   >
                     <Input placeholder="info@firma.de" />
@@ -173,8 +177,8 @@ export const ProviderCreate = () => {
                 <Col span={12}>
                   <Form.Item
                     name="phoneNumber"
-                    label="Telefon"
-                    rules={[{ required: true, message: "Telefon erforderlich" }]}
+                    label={t("provider.phone")}
+                    rules={[{ required: true, message: t("provider.phoneRequired") }]}
                   >
                     <Input placeholder="+49 30 12345678" />
                   </Form.Item>
@@ -183,20 +187,20 @@ export const ProviderCreate = () => {
 
               <Form.Item
                 name="taxNumber"
-                label="Steuernummer"
-                rules={[{ required: true, message: "Steuernummer erforderlich" }]}
+                label={t("provider.taxNumber")}
+                rules={[{ required: true, message: t("provider.taxNumberRequired") }]}
               >
                 <Input placeholder="z.B. DE123456789" />
               </Form.Item>
             </Card>
 
-            <Card title="Servicegebiete (PLZ-Präfixe)" size="small">
+            <Card title={t("provider.serviceAreas")} size="small">
               <Text type="secondary" style={{ display: "block", marginBottom: 8 }}>
-                Wählen Sie die PLZ-Gebiete, in denen Sie Umzüge anbieten.
+                {t("provider.serviceAreasHint")}
               </Text>
               <Form.Item
                 name="supportedPostCodePrefixes"
-                rules={[{ required: true, message: "Mindestens ein PLZ-Gebiet" }]}
+                rules={[{ required: true, message: t("provider.minOneArea") }]}
               >
                 <Select
                   mode="multiple"
@@ -210,22 +214,21 @@ export const ProviderCreate = () => {
           </Col>
 
           <Col span={12}>
-            <Card title="Firmenadresse" size="small" style={{ marginBottom: 16 }}>
-              <AddressForm namePrefix={["address"]} label="Geschäftsadresse" />
+            <Card title={t("provider.address")} size="small" style={{ marginBottom: 16 }}>
+              <AddressForm namePrefix={["address"]} label={t("provider.businessAddress")} />
             </Card>
 
             <Card
-              title="Dokumente hochladen"
+              title={t("provider.documents.title")}
               size="small"
               extra={
                 <Button size="small" onClick={addDocumentSlot}>
-                  + Dokument
+                  {t("provider.documents.addDocument")}
                 </Button>
               }
             >
               <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
-                Laden Sie Ihre Gewerbeanmeldung, Versicherungsnachweise und weitere
-                offizielle Dokumente hoch. Max. 10 MB pro Datei (PDF, JPG, PNG).
+                {t("provider.documents.hint")}
               </Text>
 
               {documents.map((doc, index) => (
@@ -241,7 +244,7 @@ export const ProviderCreate = () => {
                         danger
                         onClick={() => removeDocumentSlot(index)}
                       >
-                        Entfernen
+                        {t("provider.documents.remove")}
                       </Button>
                     ) : null
                   }
@@ -264,11 +267,11 @@ export const ProviderCreate = () => {
                     onChange={({ fileList }) => updateDocumentFiles(index, fileList)}
                     beforeUpload={(file) => {
                       if (!ALLOWED_TYPES.includes(file.type)) {
-                        message.error("Nur PDF, JPG, PNG oder WebP erlaubt");
+                        message.error(t("provider.documents.invalidType"));
                         return Upload.LIST_IGNORE;
                       }
                       if (file.size > MAX_FILE_SIZE) {
-                        message.error("Datei zu groß (max. 10 MB)");
+                        message.error(t("provider.documents.tooLarge"));
                         return Upload.LIST_IGNORE;
                       }
                       return false; // prevent auto upload
@@ -276,7 +279,7 @@ export const ProviderCreate = () => {
                     maxCount={1}
                     accept=".pdf,.jpg,.jpeg,.png,.webp"
                   >
-                    <Button icon={<UploadOutlined />}>Datei auswählen</Button>
+                    <Button icon={<UploadOutlined />}>{t("provider.documents.selectFile")}</Button>
                   </Upload>
                 </Card>
               ))}
@@ -286,9 +289,9 @@ export const ProviderCreate = () => {
 
         <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
           <Space>
-            <Button onClick={() => navigate("/providers")}>Abbrechen</Button>
+            <Button onClick={() => navigate("/providers")}>{t("common.cancel")}</Button>
             <Button type="primary" loading={submitting} onClick={handleSubmit}>
-              Firma registrieren
+              {t("provider.register")}
             </Button>
           </Space>
         </div>
