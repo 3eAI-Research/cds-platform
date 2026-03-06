@@ -19,14 +19,14 @@ export const CreditBalance: React.FC = () => {
 
   const fetchBalance = useCallback(async () => {
     try {
-      const res = await fetch("/api/v1/credits/balance", {
+      const res = await fetch("/api/v1/credits", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("cds-token") ?? ""}`,
         },
       });
       if (res.ok) {
         const data = await res.json();
-        setBalance(data.balance ?? data.credits ?? 0);
+        setBalance(data.data?.balance ?? data.balance ?? 0);
       }
     } catch {
       // Silently fail — balance just shows 0

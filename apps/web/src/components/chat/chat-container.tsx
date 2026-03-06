@@ -25,7 +25,7 @@ type SessionState =
   | "ERROR";
 
 const API_BASE = "/api/v1/agent";
-const CREDITS_URL = "/api/v1/credits/balance";
+const CREDITS_URL = "/api/v1/credits";
 
 function authHeaders(): Record<string, string> {
   const token = localStorage.getItem("cds-token") ?? "";
@@ -73,7 +73,7 @@ export const ChatContainer: React.FC = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setCreditBalance(data.balance ?? data.credits ?? 0);
+        setCreditBalance(data.data?.balance ?? data.balance ?? 0);
       }
     } catch {
       // ignore
@@ -91,7 +91,8 @@ export const ChatContainer: React.FC = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          setSessionId(data.id ?? data.sessionId);
+          const session = data.data ?? data;
+          setSessionId(session.id ?? session.sessionId);
           setMessages([
             {
               role: "assistant",
@@ -152,7 +153,8 @@ export const ChatContainer: React.FC = () => {
         throw new Error(`HTTP ${res.status}`);
       }
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = raw.data ?? raw;
 
       if (data.reply || data.message || data.content) {
         setMessages((prev) => [
@@ -204,7 +206,8 @@ export const ChatContainer: React.FC = () => {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = raw.data ?? raw;
 
       if (data.reply || data.message || data.content) {
         setMessages((prev) => [
@@ -242,7 +245,8 @@ export const ChatContainer: React.FC = () => {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = raw.data ?? raw;
       setSessionState("CONFIRMED");
       setMessages((prev) => [
         ...prev,
@@ -279,7 +283,8 @@ export const ChatContainer: React.FC = () => {
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = raw.data ?? raw;
       setSessionState("PLAN_READY");
       setCreditBalance((prev) => Math.max(0, prev - 1));
 
