@@ -217,7 +217,18 @@ function App() {
                       redirectOnFail="/login"
                     >
                       <ThemedLayoutV2
-                        Header={() => <AppHeader />}
+                        Header={() => (
+                          <div style={{
+                            height: 48,
+                            display: "flex",
+                            alignItems: "center",
+                            background: "#fff",
+                            borderBottom: "1px solid #f0f0f0",
+                            padding: "0 16px",
+                          }}>
+                            <AppHeader />
+                          </div>
+                        )}
                         Title={({ collapsed }) =>
                           collapsed ? (
                             <span style={{ fontSize: 16, fontWeight: 700 }}>
