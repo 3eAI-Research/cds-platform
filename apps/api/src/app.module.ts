@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './redis/redis.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapper.interceptor';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -34,6 +35,7 @@ import { EventsModule } from './events/events.module';
       maxListeners: 20,
     }),
     PrismaModule,
+    RedisModule,
 
     // --- Domain Modules ---
     AuthModule,
