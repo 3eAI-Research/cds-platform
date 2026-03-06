@@ -1,4 +1,3 @@
-import { useCreate } from "@refinedev/core";
 import { Create } from "@refinedev/antd";
 import {
   Form,
@@ -11,9 +10,20 @@ import {
   message,
   Button,
   Space,
+  Upload,
 } from "antd";
+import {
+  UploadOutlined,
+  FileProtectOutlined,
+  SafetyCertificateOutlined,
+  BankOutlined,
+  FileOutlined,
+} from "@ant-design/icons";
+import type { UploadFile } from "antd";
 import { useNavigate } from "react-router-dom";
 import { AddressForm } from "../../components/address-form";
+import axios from "axios";
+import { useState } from "react";
 
 const { Text } = Typography;
 
@@ -30,15 +40,57 @@ const PLZ_PREFIXES = [
   "90", "91", "92", "93", "94", "95", "96", "97", "98", "99",
 ];
 
+const DOCUMENT_TYPES = [
+  { value: "BUSINESS_LICENSE", label: "Gewerbeschein", icon: <FileProtectOutlined /> },
+  { value: "INSURANCE", label: "Versicherungsnachweis", icon: <SafetyCertificateOutlined /> },
+  { value: "COMMERCIAL_REGISTER", label: "Handelsregisterauszug", icon: <BankOutlined /> },
+  { value: "OTHER", label: "Sonstiges Dokument", icon: <FileOutlined /> },
+];
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
+interface DocumentUpload {
+  type: string;
+  fileList: UploadFile[];
+}
+
 export const ProviderCreate = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { mutate: create, isLoading: creating } = useCreate();
+  const [submitting, setSubmitting] = useState(false);
+  const [documents, setDocuments] = useState<DocumentUpload[]>([
+    { type: "BUSINESS_LICENSE", fileList: [] },
+  ]);
+
+  const addDocumentSlot = () => {
+    setDocuments((prev) => [...prev, { type: "OTHER", fileList: [] }]);
+  };
+
+  const removeDocumentSlot = (index: number) => {
+    setDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateDocumentType = (index: number, type: string) => {
+    setDocuments((prev) =>
+      prev.map((d, i) => (i === index ? { ...d, type } : d))
+    );
+  };
+
+  const updateDocumentFiles = (index: number, fileList: UploadFile[]) => {
+    setDocuments((prev) =>
+      prev.map((d, i) => (i === index ? { ...d, fileList } : d))
+    );
+  };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      setSubmitting(true);
 
+      const role = localStorage.getItem("cds-role") || "provider";
+
+      // 1. Create provider company
       const payload = {
         name: values.name,
         email: values.email,
@@ -48,28 +100,51 @@ export const ProviderCreate = () => {
         address: values.address,
       };
 
-      create(
-        { resource: "providers", values: payload },
-        {
-          onSuccess: () => {
-            message.success("Firma erfolgreich registriert!");
-            navigate("/providers");
-          },
-          onError: (error) => {
-            message.error(`Fehler: ${error.message}`);
-          },
+      const { data: providerRes } = await axios.post("/api/v1/providers", payload, {
+        headers: { "X-User-Role": role },
+      });
+
+      const providerId = providerRes.data?.id ?? providerRes.id;
+
+      // 2. Upload documents (if any)
+      const docsToUpload = documents.filter((d) => d.fileList.length > 0);
+
+      for (const doc of docsToUpload) {
+        for (const file of doc.fileList) {
+          if (!file.originFileObj) continue;
+          const formData = new FormData();
+          formData.append("file", file.originFileObj);
+          formData.append("type", doc.type);
+
+          await axios.post(
+            `/api/v1/providers/${providerId}/documents`,
+            formData,
+            {
+              headers: {
+                "X-User-Role": role,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
         }
+      }
+
+      message.success(
+        docsToUpload.length > 0
+          ? "Firma registriert und Dokumente hochgeladen!"
+          : "Firma erfolgreich registriert!"
       );
-    } catch {
-      // validation errors shown by form
+      navigate("/providers");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Unbekannter Fehler";
+      message.error(`Fehler: ${errorMsg}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <Create
-      title="Firma registrieren"
-      footerButtons={() => null}
-    >
+    <Create title="Firma registrieren" footerButtons={() => null}>
       <Form form={form} layout="vertical">
         <Row gutter={24}>
           <Col span={12}>
@@ -135,8 +210,76 @@ export const ProviderCreate = () => {
           </Col>
 
           <Col span={12}>
-            <Card title="Firmenadresse" size="small">
+            <Card title="Firmenadresse" size="small" style={{ marginBottom: 16 }}>
               <AddressForm namePrefix={["address"]} label="Geschäftsadresse" />
+            </Card>
+
+            <Card
+              title="Dokumente hochladen"
+              size="small"
+              extra={
+                <Button size="small" onClick={addDocumentSlot}>
+                  + Dokument
+                </Button>
+              }
+            >
+              <Text type="secondary" style={{ display: "block", marginBottom: 12 }}>
+                Laden Sie Ihre Gewerbeanmeldung, Versicherungsnachweise und weitere
+                offizielle Dokumente hoch. Max. 10 MB pro Datei (PDF, JPG, PNG).
+              </Text>
+
+              {documents.map((doc, index) => (
+                <Card
+                  key={index}
+                  size="small"
+                  style={{ marginBottom: 8 }}
+                  extra={
+                    index > 0 ? (
+                      <Button
+                        type="text"
+                        size="small"
+                        danger
+                        onClick={() => removeDocumentSlot(index)}
+                      >
+                        Entfernen
+                      </Button>
+                    ) : null
+                  }
+                >
+                  <Select
+                    value={doc.type}
+                    onChange={(val) => updateDocumentType(index, val)}
+                    style={{ width: "100%", marginBottom: 8 }}
+                    options={DOCUMENT_TYPES.map((dt) => ({
+                      value: dt.value,
+                      label: (
+                        <span>
+                          {dt.icon} {dt.label}
+                        </span>
+                      ),
+                    }))}
+                  />
+                  <Upload
+                    fileList={doc.fileList}
+                    onChange={({ fileList }) => updateDocumentFiles(index, fileList)}
+                    beforeUpload={(file) => {
+                      if (!ALLOWED_TYPES.includes(file.type)) {
+                        message.error("Nur PDF, JPG, PNG oder WebP erlaubt");
+                        return Upload.LIST_IGNORE;
+                      }
+                      if (file.size > MAX_FILE_SIZE) {
+                        message.error("Datei zu groß (max. 10 MB)");
+                        return Upload.LIST_IGNORE;
+                      }
+                      return false; // prevent auto upload
+                    }}
+                    maxCount={1}
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  >
+                    <Button icon={<UploadOutlined />}>Datei auswählen</Button>
+                  </Upload>
+                </Card>
+              ))}
             </Card>
           </Col>
         </Row>
@@ -144,7 +287,7 @@ export const ProviderCreate = () => {
         <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
           <Space>
             <Button onClick={() => navigate("/providers")}>Abbrechen</Button>
-            <Button type="primary" loading={creating} onClick={handleSubmit}>
+            <Button type="primary" loading={submitting} onClick={handleSubmit}>
               Firma registrieren
             </Button>
           </Space>

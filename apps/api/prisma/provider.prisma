@@ -86,16 +86,21 @@ model ProviderEmployee {
 // --- Provider Document (Firmendokument) ---
 
 /// Official documents: Gewerbeschein, Versicherungsnachweis, Handelsregisterauszug.
+/// GDPR: @pii — hard-deleted with company (CASCADE). Right to erasure via DELETE endpoint.
 model ProviderDocument {
   id               String    @id @default(uuid()) @db.Uuid
   companyId        String    @map("company_id") @db.Uuid
   type             String    @map("type") // BUSINESS_LICENSE | INSURANCE | COMMERCIAL_REGISTER | OTHER
-  storageKey       String    @map("storage_key") // S3/MinIO path
+  /// @pii — binary file content stored as PostgreSQL bytea
+  fileData         Bytes     @map("file_data")
+  mimeType         String    @map("mime_type") @db.VarChar(100) // e.g. application/pdf, image/jpeg
+  fileSize         Int       @map("file_size") // bytes
   /// @pii
   originalFilename String    @map("original_filename")
   verified         Boolean   @default(false) @map("verified")
   verifiedAt       DateTime? @map("verified_at")
   verifiedBy       String?   @map("verified_by") @db.Uuid
+  rejectionReason  String?   @map("rejection_reason") // why admin rejected this document
 
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")

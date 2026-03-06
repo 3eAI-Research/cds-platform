@@ -1,6 +1,6 @@
 import { useLogin } from "@refinedev/core";
 import { Button, Card, Space, Typography } from "antd";
-import { UserOutlined, ShopOutlined } from "@ant-design/icons";
+import { UserOutlined, ShopOutlined, SettingOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -42,6 +42,14 @@ export const LoginPage = () => {
             onClick={() => login({ role: "provider" })}
           >
             Umzugsunternehmen (Provider)
+          </Button>
+          <Button
+            icon={<SettingOutlined />}
+            size="large"
+            block
+            onClick={() => login({ role: "admin" })}
+          >
+            Admin
           </Button>
         </Space>
       </Card>

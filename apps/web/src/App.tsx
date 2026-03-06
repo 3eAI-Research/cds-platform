@@ -17,6 +17,10 @@ import {
   FileProtectOutlined,
   ShopOutlined,
   DollarOutlined,
+  AuditOutlined,
+  TeamOutlined,
+  UnorderedListOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
 import "@refinedev/antd/dist/reset.css";
@@ -44,6 +48,10 @@ const ProviderShow = lazy(() => import("./pages/providers/show"));
 const ProviderCreate = lazy(() => import("./pages/providers/create"));
 const PaymentList = lazy(() => import("./pages/payments/list"));
 
+// Admin pages
+const PendingProviders = lazy(() => import("./pages/admin/pending-providers"));
+const ProviderReviewPage = lazy(() => import("./pages/admin/provider-review"));
+
 const PageLoader = () => (
   <div style={{ display: "flex", justifyContent: "center", padding: 64 }}>
     <Spin size="large" />
@@ -53,6 +61,7 @@ const PageLoader = () => (
 function useRoleResources(): ResourceProps[] {
   const role = localStorage.getItem("cds-role") || "customer";
   const isProvider = role === "provider";
+  const isAdmin = role === "admin";
 
   return useMemo(() => {
     // Shared resources
@@ -62,6 +71,34 @@ function useRoleResources(): ResourceProps[] {
       show: "/contracts/:id",
       meta: { label: "Verträge", icon: <FileProtectOutlined /> },
     };
+
+    if (isAdmin) {
+      return [
+        {
+          name: "admin-providers",
+          list: "/admin/providers",
+          meta: { label: "Firma-Genehmigungen", icon: <AuditOutlined /> },
+        },
+        {
+          name: "providers",
+          list: "/providers",
+          show: "/providers/:id",
+          meta: { label: "Alle Firmen", icon: <TeamOutlined /> },
+        },
+        {
+          name: "demands",
+          list: "/demands",
+          show: "/demands/:id",
+          meta: { label: "Alle Anfragen", icon: <UnorderedListOutlined /> },
+        },
+        contracts,
+        {
+          name: "payments",
+          list: "/payments",
+          meta: { label: "Zahlungen", icon: <WalletOutlined /> },
+        },
+      ];
+    }
 
     if (isProvider) {
       return [
@@ -91,7 +128,7 @@ function useRoleResources(): ResourceProps[] {
       },
       contracts,
     ];
-  }, [isProvider]);
+  }, [isProvider, isAdmin]);
 }
 
 function App() {
@@ -164,6 +201,11 @@ function App() {
                   </Route>
                   <Route path="/payments">
                     <Route index element={<PaymentList />} />
+                  </Route>
+                  {/* Admin routes */}
+                  <Route path="/admin/providers">
+                    <Route index element={<PendingProviders />} />
+                    <Route path=":id" element={<ProviderReviewPage />} />
                   </Route>
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>

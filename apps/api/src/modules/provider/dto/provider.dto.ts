@@ -91,7 +91,69 @@ export class ListProvidersQueryDto {
   status?: string;
 }
 
-// --- Response DTO ---
+// --- Document DTOs ---
+
+/** Valid provider document types */
+export const PROVIDER_DOCUMENT_TYPES = [
+  'BUSINESS_LICENSE',
+  'INSURANCE',
+  'COMMERCIAL_REGISTER',
+  'OTHER',
+] as const;
+export type ProviderDocumentType = (typeof PROVIDER_DOCUMENT_TYPES)[number];
+
+/** Allowed MIME types for document upload (PDF, images) */
+export const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+] as const;
+
+/** Max file size: 10 MB */
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+export class UploadDocumentDto {
+  @IsString()
+  type!: string;
+}
+
+/** Admin: update provider status */
+export class UpdateProviderStatusDto {
+  @IsString()
+  status!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  reason?: string;
+}
+
+/** Admin: verify or reject a document */
+export class VerifyDocumentDto {
+  @IsString()
+  action!: 'APPROVE' | 'REJECT';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  rejectionReason?: string;
+}
+
+// --- Response DTOs ---
+
+export class ProviderDocumentResponseDto {
+  id!: string;
+  companyId!: string;
+  type!: string;
+  mimeType!: string;
+  fileSize!: number;
+  originalFilename!: string;
+  verified!: boolean;
+  verifiedAt?: string | null;
+  rejectionReason?: string | null;
+  createdAt!: string;
+}
 
 export class ProviderResponseDto {
   id!: string;
@@ -99,10 +161,12 @@ export class ProviderResponseDto {
   name!: string;
   email!: string;
   phoneNumber!: string;
+  taxNumber?: string;
   status!: string;
   supportedPostCodePrefixes!: string[];
   averageRating?: number | null;
   reviewCount!: number;
   completedJobCount!: number;
   createdAt!: string;
+  documents?: ProviderDocumentResponseDto[];
 }

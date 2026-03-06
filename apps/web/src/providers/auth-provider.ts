@@ -41,6 +41,15 @@ export const authProvider: AuthProvider = {
     const role = localStorage.getItem("cds-role");
     if (!role) return null;
 
+    if (role === "admin") {
+      return {
+        id: "00000000-0000-0000-0000-000000000003",
+        name: "Admin Demo",
+        email: "admin@cds-platform.de",
+        role: "admin",
+      };
+    }
+
     if (role === "provider") {
       return {
         id: "00000000-0000-0000-0000-000000000002",
