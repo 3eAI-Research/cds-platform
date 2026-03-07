@@ -25,6 +25,7 @@ import { AgentModule } from './modules/agent/agent.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { InvoiceModule } from './modules/invoice/invoice.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -59,6 +60,7 @@ import { EventsModule } from './events/events.module';
     RealtimeModule,
     StorageModule,
     InvoiceModule,
+    ChatModule,
 
     // --- Cross-cutting Event Handlers ---
     EventsModule,
