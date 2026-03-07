@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Input, Button, Upload, message, Popover } from "antd";
+import { Input, Button, Upload, message, Popover, Checkbox, Tooltip } from "antd";
 import { SendOutlined, PaperClipOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { UploadFile } from "antd/es/upload/interface";
@@ -7,7 +7,7 @@ import { AddressAutocomplete, type AddressResult } from "../address/address-auto
 
 interface ChatInputProps {
   onSend: (message: string) => void;
-  onPhotoUpload: (files: File[]) => void;
+  onPhotoUpload: (files: File[], keepPhotos: boolean) => void;
   disabled?: boolean;
   loading?: boolean;
 }
@@ -23,6 +23,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [text, setText] = useState("");
   const [addressOpen, setAddressOpen] = useState(false);
+  const [keepPhotos, setKeepPhotos] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
 
@@ -66,7 +67,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       }
     }
     if (files.length > 0) {
-      onPhotoUpload(files);
+      onPhotoUpload(files, keepPhotos);
     }
   };
 
@@ -89,12 +90,23 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         onChange={handleUploadChange}
         disabled={disabled || loading}
       >
-        <Button
-          icon={<PaperClipOutlined />}
-          disabled={disabled || loading}
-          title={t("agent.uploadPhotos")}
-        />
+        <Tooltip title={t("agent.uploadPhotos")}>
+          <Button
+            icon={<PaperClipOutlined />}
+            disabled={disabled || loading}
+          />
+        </Tooltip>
       </Upload>
+      <Tooltip title={t("agent.keepPhotosHint", "Store photos for 30 days (100MB max)")}>
+        <Checkbox
+          checked={keepPhotos}
+          onChange={(e) => setKeepPhotos(e.target.checked)}
+          disabled={disabled || loading}
+          style={{ whiteSpace: "nowrap", fontSize: 12 }}
+        >
+          <span className="cds-keep-photos-label">{t("agent.keepPhotos", "Keep")}</span>
+        </Checkbox>
+      </Tooltip>
       <Popover
         content={
           <div style={{ width: 320 }}>

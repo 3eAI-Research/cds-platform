@@ -20,7 +20,8 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 import { CurrentUser, AuthUser } from '../../../common/decorators/current-user.decorator';
 import { AgentService } from '../services/agent.service';
 import { ReportService } from '../services/report.service';
-import { SendMessageDto } from '../dto/agent.dto';
+import { PhotoStorageService } from '../services/photo-storage.service';
+import { SendMessageDto, UploadPhotosQueryDto } from '../dto/agent.dto';
 import { BusinessException } from '../../../common/exceptions/business.exception';
 import { ErrorCode } from '../../../common/types/error-codes';
 
@@ -30,6 +31,7 @@ export class AgentController {
   constructor(
     private readonly agentService: AgentService,
     private readonly reportService: ReportService,
+    private readonly photoStorageService: PhotoStorageService,
   ) {}
 
   /**
@@ -106,6 +108,7 @@ export class AgentController {
     @Param('id', ParseUUIDPipe) id: string,
     @UploadedFiles() files: Express.Multer.File[],
     @CurrentUser() user: AuthUser,
+    @Query('keepPhotos') keepPhotos?: string,
   ) {
     if (!files || files.length === 0) {
       throw new BusinessException(
@@ -118,9 +121,12 @@ export class AgentController {
     const photos = files.map((f) => ({
       buffer: f.buffer,
       mimeType: f.mimetype,
+      originalName: f.originalname,
     }));
 
-    return this.agentService.uploadPhotos(id, user.userId, photos);
+    const keep = keepPhotos === 'true';
+
+    return this.agentService.uploadPhotos(id, user.userId, photos, keep);
   }
 
   /**
@@ -179,6 +185,51 @@ export class AgentController {
   ) {
     await this.agentService.cancelSession(id, user.userId);
     return { message: 'Session cancelled' };
+  }
+
+  /**
+   * GET /api/v1/agent/photos
+   * List user's stored photos with storage info.
+   */
+  @ApiOperation({ summary: 'List stored photos and storage usage' })
+  @Roles('customer')
+  @Get('photos')
+  async listPhotos(@CurrentUser() user: AuthUser) {
+    const [photos, storageInfo] = await Promise.all([
+      this.photoStorageService.listUserPhotos(user.userId),
+      this.photoStorageService.getStorageInfo(user.userId),
+    ]);
+    return { photos, storage: storageInfo };
+  }
+
+  /**
+   * GET /api/v1/agent/photos/:id/url
+   * Get presigned download URL for a stored photo.
+   */
+  @ApiOperation({ summary: 'Get photo download URL' })
+  @Roles('customer')
+  @Get('photos/:id/url')
+  async getPhotoUrl(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    const url = await this.photoStorageService.getPhotoUrl(id, user.userId);
+    return { url };
+  }
+
+  /**
+   * DELETE /api/v1/agent/photos/:id
+   * Delete a stored photo.
+   */
+  @ApiOperation({ summary: 'Delete a stored photo' })
+  @Roles('customer')
+  @Delete('photos/:id')
+  async deletePhoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: AuthUser,
+  ) {
+    await this.photoStorageService.deletePhoto(id, user.userId);
+    return { message: 'Photo deleted' };
   }
 
   /**

@@ -399,6 +399,11 @@ export const en = {
       "Upload photos of your rooms for automatic furniture detection",
     detected: "detected",
     manualForm: "Switch to manual form",
+    keepPhotos: "Keep",
+    keepPhotosHint: "Store photos for 30 days (100MB max). After 30 days: 1-3 EUR/month or auto-delete.",
+    photosStored: "Photos stored",
+    photosDiscarded: "Photos analyzed and discarded",
+    storageUsage: "Storage",
   },
   analytics: {
     providerDashboard: "Analytics",

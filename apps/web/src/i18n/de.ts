@@ -400,6 +400,11 @@ export const de = {
       "Laden Sie Fotos Ihrer Räume hoch, um Möbel automatisch zu erkennen",
     detected: "erkannt",
     manualForm: "Zum manuellen Formular wechseln",
+    keepPhotos: "Behalten",
+    keepPhotosHint: "Fotos 30 Tage speichern (max. 100 MB). Danach: 1-3 EUR/Monat oder automatisch löschen.",
+    photosStored: "Fotos gespeichert",
+    photosDiscarded: "Fotos analysiert und gelöscht",
+    storageUsage: "Speicher",
   },
   analytics: {
     providerDashboard: "Statistiken",

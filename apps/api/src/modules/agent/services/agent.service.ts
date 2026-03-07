@@ -6,6 +6,7 @@ import { PhotoAnalyzerService, DetectedItem } from './photo-analyzer.service';
 import { PlanCalculatorService, PlanInput, MovingPlan } from './plan-calculator.service';
 import { ReportService } from './report.service';
 import { CreditService } from '../../credit/services/credit.service';
+import { PhotoStorageService, PhotoStorageResult } from './photo-storage.service';
 import { DemandService } from '../../demand/services/demand.service';
 import { Prisma } from '@prisma/client';
 import { BusinessException, NotFoundException } from '../../../common/exceptions/business.exception';
@@ -67,6 +68,7 @@ export class AgentService {
     private readonly reportService: ReportService,
     private readonly creditService: CreditService,
     private readonly demandService: DemandService,
+    private readonly photoStorageService: PhotoStorageService,
   ) {}
 
   // ─── Create Session ──────────────────────────────────────────────────────────
@@ -204,8 +206,9 @@ export class AgentService {
   async uploadPhotos(
     sessionId: string,
     userId: string,
-    photos: Array<{ buffer: Buffer; mimeType: string }>,
-  ): Promise<{ detectedItems: DetectedItem[] }> {
+    photos: Array<{ buffer: Buffer; mimeType: string; originalName?: string }>,
+    keepPhotos: boolean = false,
+  ): Promise<{ detectedItems: DetectedItem[]; storedPhotos?: PhotoStorageResult[] }> {
     const session = await this.loadAndValidateSession(sessionId, userId);
 
     // Deduct 1 credit for photo analysis
@@ -213,6 +216,27 @@ export class AgentService {
 
     // Analyze photos
     const result = await this.photoAnalyzerService.analyzePhotos(photos);
+
+    // If user opted to keep photos, store them in MinIO
+    let storedPhotos: PhotoStorageResult[] | undefined;
+    if (keepPhotos) {
+      storedPhotos = [];
+      for (const photo of photos) {
+        try {
+          const stored = await this.photoStorageService.storePhoto(
+            userId,
+            sessionId,
+            photo.buffer,
+            photo.originalName ?? `photo-${Date.now()}.jpg`,
+            photo.mimeType,
+          );
+          storedPhotos.push(stored);
+        } catch (err) {
+          this.logger.warn(`Failed to store photo for user ${userId}: ${err}`);
+          // Don't fail the whole upload — analysis already done
+        }
+      }
+    }
 
     // Merge detected items into session furniture
     if (!session.extractedData.furniture) {
@@ -272,10 +296,11 @@ export class AgentService {
     });
 
     this.logger.log(
-      `Photo analysis: ${result.detectedItems.length} items detected for session ${sessionId}`,
+      `Photo analysis: ${result.detectedItems.length} items detected for session ${sessionId}` +
+        (keepPhotos ? `, ${storedPhotos?.length ?? 0} photos stored` : ', photos discarded'),
     );
 
-    return { detectedItems: result.detectedItems };
+    return { detectedItems: result.detectedItems, storedPhotos };
   }
 
   // ─── Confirm Demand ──────────────────────────────────────────────────────────

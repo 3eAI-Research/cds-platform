@@ -78,6 +78,32 @@ model AgentReport {
   @@schema("agent")
 }
 
+// --- Photo Storage (user-opted photo retention) ---
+
+/// Tracks photos that users chose to keep after AI analysis.
+/// Default: photos are deleted after processing.
+/// If kept: 1 month free, then monthly billing (1-3 EUR).
+model PhotoStorage {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  sessionId       String    @map("session_id") @db.Uuid
+  storageKey      String    @map("storage_key")          // MinIO object key
+  fileName        String    @map("file_name")
+  sizeBytes       Int       @map("size_bytes")
+  mimeType        String    @map("mime_type")
+  billingStatus   String    @default("FREE") @map("billing_status") // FREE | BILLED | EXPIRED
+  freeUntil       DateTime  @map("free_until") @db.Timestamptz      // 1 month from upload
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId])
+  @@index([billingStatus])
+  @@index([freeUntil])
+  @@map("photo_storage")
+  @@schema("agent")
+}
+
 // --- Agent Processed Events ---
 
 model AgentProcessedEvent {

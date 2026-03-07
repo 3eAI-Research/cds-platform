@@ -400,6 +400,11 @@ export const tr = {
       "Otomatik mobilya tespiti icin oda fotograflarinizi yukleyin",
     detected: "tespit edildi",
     manualForm: "Manuel forma gec",
+    keepPhotos: "Sakla",
+    keepPhotosHint: "Fotograflari 30 gun sakla (maks. 100 MB). Sonra: aylik 1-3 EUR veya otomatik sil.",
+    photosStored: "Fotograflar saklandi",
+    photosDiscarded: "Fotograflar analiz edildi ve silindi",
+    storageUsage: "Depolama",
   },
   analytics: {
     providerDashboard: "İstatistikler",

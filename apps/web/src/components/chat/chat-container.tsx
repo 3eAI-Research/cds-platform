@@ -180,7 +180,7 @@ export const ChatContainer: React.FC = () => {
     }
   };
 
-  const handlePhotoUpload = async (files: File[]) => {
+  const handlePhotoUpload = async (files: File[], keepPhotos: boolean = false) => {
     if (!sessionId || loading) return;
 
     setLoading(true);
@@ -188,7 +188,7 @@ export const ChatContainer: React.FC = () => {
       ...prev,
       {
         role: "user",
-        content: `${t("agent.photoAnalysis")} (${files.length} ${files.length === 1 ? "photo" : "photos"})`,
+        content: `${t("agent.photoAnalysis")} (${files.length} ${files.length === 1 ? "photo" : "photos"})${keepPhotos ? " 📁" : ""}`,
         timestamp: formatTime(),
       },
     ]);
@@ -198,7 +198,8 @@ export const ChatContainer: React.FC = () => {
       files.forEach((file) => formData.append("photos", file));
 
       const token = localStorage.getItem("cds-token") ?? "";
-      const res = await fetch(`${API_BASE}/sessions/${sessionId}/photos`, {
+      const url = `${API_BASE}/sessions/${sessionId}/photos${keepPhotos ? "?keepPhotos=true" : ""}`;
+      const res = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
