@@ -24,6 +24,8 @@ import {
   CreditCardOutlined,
   FileDoneOutlined,
   MessageOutlined,
+  BarChartOutlined,
+  LineChartOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,6 +62,8 @@ const ProviderReviewPage = lazy(() => import("./pages/admin/provider-review"));
 const AgentSessions = lazy(() => import("./pages/admin/agent-sessions"));
 const CreditOverview = lazy(() => import("./pages/admin/credit-overview"));
 const ChatPage = lazy(() => import("./pages/chat"));
+const ProviderDashboard = lazy(() => import("./pages/analytics/provider-dashboard"));
+const AdminAnalytics = lazy(() => import("./pages/analytics/admin-dashboard"));
 
 const PageLoader = () => (
   <div style={{ display: "flex", justifyContent: "center", padding: 64 }}>
@@ -123,6 +127,11 @@ function useRoleResources(): ResourceProps[] {
           list: "/admin/credits",
           meta: { label: t("admin.creditOverview"), icon: <CreditCardOutlined /> },
         },
+        {
+          name: "admin-analytics",
+          list: "/admin/analytics",
+          meta: { label: t("analytics.adminDashboard", "Analytics"), icon: <LineChartOutlined /> },
+        },
       ];
     }
 
@@ -150,6 +159,11 @@ function useRoleResources(): ResourceProps[] {
           name: "messages",
           list: "/messages",
           meta: { label: t("chat.title", "Messages"), icon: <MessageOutlined /> },
+        },
+        {
+          name: "analytics",
+          list: "/analytics",
+          meta: { label: t("analytics.providerDashboard", "Analytics"), icon: <BarChartOutlined /> },
         },
       ];
     }
@@ -314,6 +328,8 @@ function App() {
                   </Route>
                   <Route path="/admin/agent-sessions" element={<AgentSessions />} />
                   <Route path="/admin/credits" element={<CreditOverview />} />
+                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                  <Route path="/analytics" element={<ProviderDashboard />} />
                   <Route path="*" element={<ErrorComponent />} />
                 </Route>
 
