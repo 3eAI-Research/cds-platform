@@ -24,6 +24,7 @@ import { StripeModule } from './modules/stripe/stripe.module';
 import { AgentModule } from './modules/agent/agent.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { InvoiceModule } from './modules/invoice/invoice.module';
 import { EventsModule } from './events/events.module';
 
 @Module({
@@ -57,6 +58,7 @@ import { EventsModule } from './events/events.module';
     AgentModule,
     RealtimeModule,
     StorageModule,
+    InvoiceModule,
 
     // --- Cross-cutting Event Handlers ---
     EventsModule,
