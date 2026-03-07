@@ -34,6 +34,7 @@ export default function InvoiceList() {
       <h2>{t("invoice.title", "Invoices")}</h2>
       <Table
         dataSource={invoices}
+        scroll={{ x: 600 }}
         rowKey="id"
         loading={isLoading}
         pagination={{ pageSize: 20 }}

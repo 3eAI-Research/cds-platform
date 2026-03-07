@@ -154,8 +154,8 @@ export const DashboardPage = () => {
   // --- Customer / Provider Dashboard ---
   return (
     <div style={{ padding: 24 }}>
-      <Row justify="space-between" align="middle">
-        <Col>
+      <Row justify="space-between" align="middle" gutter={[0, 12]}>
+        <Col xs={24} sm={16}>
           <Title level={4} style={{ margin: 0 }}>
             {t("dashboard.welcome")}, {identity?.name ?? "Benutzer"}
           </Title>
@@ -165,12 +165,14 @@ export const DashboardPage = () => {
               : t("dashboard.customerSubtitle")}
           </Text>
         </Col>
-        <Col>
+        <Col xs={24} sm={8} style={{ textAlign: "right" }}>
           {!isProvider && (
             <Button
               type="primary"
               icon={<PlusOutlined />}
               size="large"
+              block
+              className="cds-mobile-full-btn"
               onClick={() => navigate("/demands/create")}
             >
               {t("dashboard.newMovingRequest")}
@@ -181,6 +183,8 @@ export const DashboardPage = () => {
               type="primary"
               icon={<ShoppingOutlined />}
               size="large"
+              block
+              className="cds-mobile-full-btn"
               onClick={() => navigate("/demands")}
             >
               {t("dashboard.marketplaceBtn")}

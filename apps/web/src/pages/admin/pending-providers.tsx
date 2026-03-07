@@ -47,6 +47,7 @@ export const PendingProviders = () => {
     <List title={t("admin.pendingProviders")}>
       <Table<Provider>
         dataSource={providers}
+        scroll={{ x: 600 }}
         rowKey="id"
         loading={isLoading}
         pagination={false}

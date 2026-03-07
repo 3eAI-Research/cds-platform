@@ -131,9 +131,10 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 120px)", padding: 0 }}>
+    <div className="cds-chat-container" style={{ display: "flex", height: "calc(100vh - 120px)", padding: 0 }}>
       {/* Left: Channel list */}
       <div
+        className={`cds-chat-sidebar${selectedChannel ? " cds-chat-sidebar--hidden" : ""}`}
         style={{
           width: 320,
           borderRight: "1px solid #f0f0f0",
@@ -183,13 +184,19 @@ export default function ChatPage() {
       </div>
 
       {/* Right: Messages */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div className="cds-chat-messages" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {!selectedChannel ? (
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Text type="secondary">{t("chat.selectChannel", "Select a conversation")}</Text>
           </div>
         ) : (
           <>
+            {/* Back button (visible on mobile via CSS) */}
+            <div className="cds-chat-back" style={{ padding: "8px 16px", borderBottom: "1px solid #f0f0f0" }}>
+              <Button size="small" onClick={() => setSelectedChannel(null)}>
+                ← {t("common.back", "Back")}
+              </Button>
+            </div>
             {/* Messages area */}
             <div style={{ flex: 1, overflow: "auto", padding: 16 }}>
               {messages.map((msg) => {

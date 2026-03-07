@@ -38,15 +38,17 @@ export const AppHeader = () => {
 
   return (
     <div
+      className="cds-header"
       style={{
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center",
         padding: "0 16px",
         height: "100%",
+        overflow: "hidden",
       }}
     >
-      <Space>
+      <Space size={8} wrap={false}>
         <Select
           size="small"
           value={i18n.language}
@@ -65,8 +67,9 @@ export const AppHeader = () => {
         <Tag color={roleColors[role] ?? "blue"}>
           {getRoleLabels(t)[role] ?? role}
         </Tag>
-        <Text>{identity?.name}</Text>
+        <span className="cds-username"><Text>{identity?.name}</Text></span>
         <Button
+          className="cds-switch-btn"
           size="small"
           icon={<SwapOutlined />}
           onClick={() => logout()}

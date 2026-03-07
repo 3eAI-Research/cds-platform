@@ -58,6 +58,7 @@ export const ProviderList = () => {
     >
       <Table<ProviderRecord>
         dataSource={data?.data as ProviderRecord[]}
+        scroll={{ x: 600 }}
         loading={isLoading}
         rowKey="id"
         pagination={{ pageSize: 20 }}

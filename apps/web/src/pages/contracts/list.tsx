@@ -44,6 +44,7 @@ export const ContractList = () => {
     <List title={t("contract.title")}>
       <Table<ContractRecord>
         dataSource={data?.data as ContractRecord[]}
+        scroll={{ x: 600 }}
         loading={isLoading}
         rowKey="id"
         pagination={{ pageSize: 20 }}

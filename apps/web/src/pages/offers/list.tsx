@@ -118,6 +118,7 @@ export const OfferList = () => {
     <List title={t("offer.myOffers")}>
       <Table
         dataSource={offers}
+        scroll={{ x: 600 }}
         columns={columns}
         rowKey="id"
         loading={isLoading}

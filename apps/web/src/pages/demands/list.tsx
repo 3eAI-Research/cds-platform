@@ -65,6 +65,7 @@ export const DemandList = () => {
         loading={isLoading}
         rowKey="id"
         pagination={{ pageSize: 20 }}
+        scroll={{ x: 600 }}
         onRow={(record) => ({
           onClick: () => navigate(`/demands/${record.id}`),
           style: { cursor: "pointer" },

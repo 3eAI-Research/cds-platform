@@ -57,6 +57,7 @@ export const PaymentList = () => {
     <List title={t("payment.title")}>
       <Table<PaymentRecord>
         dataSource={data?.data as PaymentRecord[]}
+        scroll={{ x: 600 }}
         loading={isLoading}
         rowKey="id"
         pagination={{ pageSize: 20 }}

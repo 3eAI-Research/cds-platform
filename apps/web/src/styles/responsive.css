@@ -1,0 +1,110 @@
+/* =============================================================================
+   CDS Platform — Mobile Responsive Overrides
+   Breakpoints: xs < 576px, sm >= 576px, md >= 768px, lg >= 992px
+   ============================================================================= */
+
+/* --- Tables: horizontal scroll on mobile --- */
+@media (max-width: 768px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ant-table {
+    min-width: 600px;
+  }
+
+  /* Compact table cells on mobile */
+  .ant-table-cell {
+    padding: 8px 8px !important;
+    font-size: 13px;
+  }
+}
+
+/* --- Header: compact on mobile --- */
+@media (max-width: 576px) {
+  .cds-header .ant-space {
+    gap: 4px !important;
+  }
+
+  .cds-header .ant-select {
+    width: 60px !important;
+  }
+
+  .cds-header .cds-username {
+    display: none;
+  }
+
+  .cds-header .cds-switch-btn .ant-btn-icon + span {
+    display: none;
+  }
+}
+
+/* --- Chat: stacked layout on mobile --- */
+@media (max-width: 768px) {
+  .cds-chat-container {
+    flex-direction: column !important;
+    height: calc(100vh - 110px) !important;
+  }
+
+  .cds-chat-sidebar {
+    width: 100% !important;
+    max-height: 200px !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+  }
+
+  .cds-chat-sidebar.cds-chat-sidebar--hidden {
+    display: none !important;
+  }
+
+  .cds-chat-messages {
+    flex: 1 !important;
+  }
+}
+
+/* --- Page padding: reduced on mobile --- */
+@media (max-width: 576px) {
+  .ant-layout-content {
+    padding: 8px !important;
+  }
+
+  /* Reduce card padding */
+  .ant-card-body {
+    padding: 12px !important;
+  }
+
+  /* Dashboard title row */
+  .ant-row {
+    gap: 8px;
+  }
+
+  /* Full-width buttons on mobile */
+  .cds-mobile-full-btn {
+    width: 100%;
+  }
+}
+
+/* --- Descriptions: vertical on mobile --- */
+@media (max-width: 576px) {
+  .ant-descriptions-item-label,
+  .ant-descriptions-item-content {
+    padding: 8px !important;
+  }
+}
+
+/* --- Chat back button: hide on desktop, show on mobile --- */
+.cds-chat-back {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .cds-chat-back {
+    display: block;
+  }
+}
+
+/* --- Recharts: ensure charts don't overflow --- */
+.recharts-responsive-container {
+  max-width: 100%;
+}
