@@ -1,0 +1,46 @@
+model Invoice {
+  id                  String    @id @default(uuid()) @db.Uuid
+  invoiceNumber       String    @unique @map("invoice_number")
+  contractId          String    @map("contract_id") @db.Uuid
+  demandId            String    @map("demand_id") @db.Uuid
+  paymentId           String?   @map("payment_id") @db.Uuid
+  customerUserId      String    @map("customer_user_id") @db.Uuid
+  providerUserId      String    @map("provider_user_id") @db.Uuid
+  providerCompanyId   String    @map("provider_company_id") @db.Uuid
+
+  // Amounts (cents)
+  subtotalAmount      Int       @map("subtotal_amount")
+  vatRate             Int       @default(19) @map("vat_rate")
+  vatAmount           Int       @map("vat_amount")
+  commissionRate      Int       @default(4) @map("commission_rate")
+  commissionAmount    Int       @map("commission_amount")
+  totalAmount         Int       @map("total_amount")
+  currency            String    @default("EUR") @map("currency") @db.VarChar(3)
+
+  // Addresses (snapshot at invoice time)
+  customerName        String    @map("customer_name")
+  customerAddress     String?   @map("customer_address")
+  providerName        String    @map("provider_name")
+  providerAddress     String?   @map("provider_address")
+  providerTaxId       String?   @map("provider_tax_id")
+
+  // Service details
+  serviceDescription  String    @map("service_description") @db.Text
+  serviceDate         DateTime? @map("service_date") @db.Date
+
+  // Storage
+  pdfKey              String?   @map("pdf_key")
+  status              String    @default("DRAFT") @map("status") // DRAFT | ISSUED | PAID | CANCELLED
+
+  issuedAt            DateTime? @map("issued_at") @db.Timestamptz
+  paidAt              DateTime? @map("paid_at") @db.Timestamptz
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@index([contractId])
+  @@index([customerUserId])
+  @@index([providerCompanyId])
+  @@index([status])
+  @@map("invoices")
+  @@schema("invoice")
+}
