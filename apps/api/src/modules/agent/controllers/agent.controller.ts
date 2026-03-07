@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { CurrentUser, AuthUser } from '../../../common/decorators/current-user.decorator';
@@ -50,6 +51,7 @@ export class AgentController {
    * Create a new AI assistant session.
    */
   @ApiOperation({ summary: 'Create a new AI assistant session' })
+  @Throttle({ short: { ttl: 10000, limit: 2 }, medium: { ttl: 60000, limit: 10 } })
   @Roles('customer')
   @Post('sessions')
   async createSession(@CurrentUser() user: AuthUser) {
@@ -61,6 +63,7 @@ export class AgentController {
    * Send a message to the AI assistant.
    */
   @ApiOperation({ summary: 'Send a message to the AI assistant' })
+  @Throttle({ short: { ttl: 5000, limit: 1 }, medium: { ttl: 60000, limit: 15 } })
   @Roles('customer')
   @Post('sessions/:id/messages')
   async sendMessage(
@@ -139,6 +142,7 @@ export class AgentController {
    * Calculate moving plan and generate report.
    */
   @ApiOperation({ summary: 'Calculate moving plan and generate PDF report' })
+  @Throttle({ short: { ttl: 30000, limit: 1 }, medium: { ttl: 300000, limit: 3 } })
   @Roles('customer')
   @Post('sessions/:id/plan')
   async calculatePlan(

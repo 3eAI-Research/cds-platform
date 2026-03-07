@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { Input, Button, Upload, message } from "antd";
-import { SendOutlined, PaperClipOutlined } from "@ant-design/icons";
+import { Input, Button, Upload, message, Popover } from "antd";
+import { SendOutlined, PaperClipOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import type { UploadFile } from "antd/es/upload/interface";
+import { AddressAutocomplete, type AddressResult } from "../address/address-autocomplete";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -21,8 +22,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   loading = false,
 }) => {
   const [text, setText] = useState("");
+  const [addressOpen, setAddressOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
+
+  const handleAddressSelect = (address: AddressResult) => {
+    onSend(`📍 ${address.formatted}`);
+    setAddressOpen(false);
+  };
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -88,6 +95,26 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           title={t("agent.uploadPhotos")}
         />
       </Upload>
+      <Popover
+        content={
+          <div style={{ width: 320 }}>
+            <AddressAutocomplete
+              onSelect={handleAddressSelect}
+              placeholder={t("address.searchPlaceholder", "Enter address...")}
+            />
+          </div>
+        }
+        title={t("address.pickAddress", "Select address")}
+        trigger="click"
+        open={addressOpen}
+        onOpenChange={setAddressOpen}
+      >
+        <Button
+          icon={<EnvironmentOutlined />}
+          disabled={disabled || loading}
+          title={t("address.pickAddress", "Select address")}
+        />
+      </Popover>
       <Input
         ref={inputRef as never}
         value={text}

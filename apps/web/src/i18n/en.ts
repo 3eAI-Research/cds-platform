@@ -423,4 +423,11 @@ export const en = {
     typeMessage: "Type a message...",
     send: "Send",
   },
+  address: {
+    searchPlaceholder: "Enter address...",
+    pickOnMap: "Pick on map",
+    confirmLocation: "Confirm location",
+    selected: "Selected",
+    pickAddress: "Select address",
+  },
 };

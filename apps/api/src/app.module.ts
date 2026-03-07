@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
@@ -42,6 +43,18 @@ import { EventsModule } from './events/events.module';
       delimiter: '.',
       maxListeners: 20,
     }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,   // 1 second
+        limit: 3,    // max 3 requests per second per IP
+      },
+      {
+        name: 'medium',
+        ttl: 60000,  // 1 minute
+        limit: 60,   // max 60 requests per minute per IP
+      },
+    ]),
     PrismaModule,
     RedisModule,
 
@@ -83,6 +96,10 @@ import { EventsModule } from './events/events.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

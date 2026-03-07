@@ -424,4 +424,11 @@ export const de = {
     typeMessage: "Nachricht eingeben...",
     send: "Senden",
   },
+  address: {
+    searchPlaceholder: "Adresse eingeben...",
+    pickOnMap: "Auf Karte wählen",
+    confirmLocation: "Standort bestätigen",
+    selected: "Ausgewählt",
+    pickAddress: "Adresse wählen",
+  },
 };

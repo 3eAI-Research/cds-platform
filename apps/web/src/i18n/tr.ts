@@ -424,4 +424,11 @@ export const tr = {
     typeMessage: "Mesaj yazın...",
     send: "Gönder",
   },
+  address: {
+    searchPlaceholder: "Adres girin...",
+    pickOnMap: "Haritadan seç",
+    confirmLocation: "Konumu onayla",
+    selected: "Seçilen",
+    pickAddress: "Adres seç",
+  },
 };
