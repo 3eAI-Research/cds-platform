@@ -23,6 +23,7 @@ import {
   RobotOutlined,
   CreditCardOutlined,
   FileDoneOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -58,6 +59,7 @@ const PendingProviders = lazy(() => import("./pages/admin/pending-providers"));
 const ProviderReviewPage = lazy(() => import("./pages/admin/provider-review"));
 const AgentSessions = lazy(() => import("./pages/admin/agent-sessions"));
 const CreditOverview = lazy(() => import("./pages/admin/credit-overview"));
+const ChatPage = lazy(() => import("./pages/chat"));
 
 const PageLoader = () => (
   <div style={{ display: "flex", justifyContent: "center", padding: 64 }}>
@@ -144,6 +146,11 @@ function useRoleResources(): ResourceProps[] {
           show: "/invoices/:id",
           meta: { label: t("invoice.title", "Invoices"), icon: <FileDoneOutlined /> },
         },
+        {
+          name: "messages",
+          list: "/messages",
+          meta: { label: t("chat.title", "Messages"), icon: <MessageOutlined /> },
+        },
       ];
     }
 
@@ -162,6 +169,11 @@ function useRoleResources(): ResourceProps[] {
         list: "/invoices",
         show: "/invoices/:id",
         meta: { label: t("invoice.title", "Invoices"), icon: <FileDoneOutlined /> },
+      },
+      {
+        name: "messages",
+        list: "/messages",
+        meta: { label: t("chat.title", "Messages"), icon: <MessageOutlined /> },
       },
     ];
   }, [isProvider, isAdmin, t]);
@@ -291,6 +303,7 @@ function App() {
                     <Route index element={<InvoiceList />} />
                     <Route path=":id" element={<InvoiceShow />} />
                   </Route>
+                  <Route path="/messages" element={<ChatPage />} />
                   <Route path="/payments">
                     <Route index element={<PaymentList />} />
                   </Route>

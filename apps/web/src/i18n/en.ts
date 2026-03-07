@@ -395,4 +395,12 @@ export const en = {
     detected: "detected",
     manualForm: "Switch to manual form",
   },
+  chat: {
+    title: "Messages",
+    noChannels: "No conversations yet",
+    noMessages: "No messages",
+    selectChannel: "Select a conversation",
+    typeMessage: "Type a message...",
+    send: "Send",
+  },
 };

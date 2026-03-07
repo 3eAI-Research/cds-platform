@@ -396,4 +396,12 @@ export const de = {
     detected: "erkannt",
     manualForm: "Zum manuellen Formular wechseln",
   },
+  chat: {
+    title: "Nachrichten",
+    noChannels: "Noch keine Unterhaltungen",
+    noMessages: "Keine Nachrichten",
+    selectChannel: "Wählen Sie eine Unterhaltung",
+    typeMessage: "Nachricht eingeben...",
+    send: "Senden",
+  },
 };

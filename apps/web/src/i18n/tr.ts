@@ -396,4 +396,12 @@ export const tr = {
     detected: "tespit edildi",
     manualForm: "Manuel forma gec",
   },
+  chat: {
+    title: "Mesajlar",
+    noChannels: "Henüz sohbet yok",
+    noMessages: "Mesaj yok",
+    selectChannel: "Bir sohbet seçin",
+    typeMessage: "Mesaj yazın...",
+    send: "Gönder",
+  },
 };
