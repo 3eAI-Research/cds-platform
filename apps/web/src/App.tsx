@@ -22,6 +22,7 @@ import {
   WalletOutlined,
   RobotOutlined,
   CreditCardOutlined,
+  FileDoneOutlined,
 } from "@ant-design/icons";
 import { lazy, Suspense, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,6 +50,8 @@ const ProviderList = lazy(() => import("./pages/providers/list"));
 const ProviderShow = lazy(() => import("./pages/providers/show"));
 const ProviderCreate = lazy(() => import("./pages/providers/create"));
 const PaymentList = lazy(() => import("./pages/payments/list"));
+const InvoiceList = lazy(() => import("./pages/invoices/list"));
+const InvoiceShow = lazy(() => import("./pages/invoices/show"));
 
 // Admin pages
 const PendingProviders = lazy(() => import("./pages/admin/pending-providers"));
@@ -98,6 +101,12 @@ function useRoleResources(): ResourceProps[] {
         },
         contracts,
         {
+          name: "invoices",
+          list: "/invoices",
+          show: "/invoices/:id",
+          meta: { label: t("invoice.title", "Invoices"), icon: <FileDoneOutlined /> },
+        },
+        {
           name: "payments",
           list: "/payments",
           meta: { label: t("nav.payments"), icon: <WalletOutlined /> },
@@ -129,6 +138,12 @@ function useRoleResources(): ResourceProps[] {
           meta: { label: t("offer.myOffers"), icon: <DollarOutlined /> },
         },
         contracts,
+        {
+          name: "invoices",
+          list: "/invoices",
+          show: "/invoices/:id",
+          meta: { label: t("invoice.title", "Invoices"), icon: <FileDoneOutlined /> },
+        },
       ];
     }
 
@@ -142,6 +157,12 @@ function useRoleResources(): ResourceProps[] {
         meta: { label: t("dashboard.myDemands"), icon: <FileTextOutlined /> },
       },
       contracts,
+      {
+        name: "invoices",
+        list: "/invoices",
+        show: "/invoices/:id",
+        meta: { label: t("invoice.title", "Invoices"), icon: <FileDoneOutlined /> },
+      },
     ];
   }, [isProvider, isAdmin, t]);
 }
@@ -265,6 +286,10 @@ function App() {
                     <Route index element={<ProviderList />} />
                     <Route path="create" element={<ProviderCreate />} />
                     <Route path=":id" element={<ProviderShow />} />
+                  </Route>
+                  <Route path="/invoices">
+                    <Route index element={<InvoiceList />} />
+                    <Route path=":id" element={<InvoiceShow />} />
                   </Route>
                   <Route path="/payments">
                     <Route index element={<PaymentList />} />
