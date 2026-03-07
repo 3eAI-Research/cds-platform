@@ -5,6 +5,7 @@ import { ContractEventHandlers } from './contract-event.handlers';
 import { DemandEventHandlers } from './demand-event.handlers';
 import { OfferEventHandlers } from './offer-event.handlers';
 import { NotificationEventHandlers } from './notification-event.handlers';
+import { RealtimeEventHandler } from './realtime-event.handler';
 
 /**
  * Events module — registers all domain event handlers.
@@ -25,6 +26,7 @@ import { NotificationEventHandlers } from './notification-event.handlers';
     OfferEventHandlers,
     ContractEventHandlers,
     NotificationEventHandlers,
+    RealtimeEventHandler,
   ],
 })
 export class EventsModule {}
