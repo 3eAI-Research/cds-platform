@@ -1,6 +1,6 @@
 import { useGetIdentity, useList } from "@refinedev/core";
 import { useTranslation } from "react-i18next";
-import { Card, Typography, Row, Col, Statistic, Button, Space } from "antd";
+import { Card, Typography, Row, Col, Button, Space } from "antd";
 import {
   FileTextOutlined,
   ShoppingOutlined,
@@ -11,11 +11,61 @@ import {
   AuditOutlined,
   TeamOutlined,
   WalletOutlined,
+  RobotOutlined,
+  BarChartOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCustom } from "@refinedev/core";
 
 const { Title, Text } = Typography;
+
+const StatCard: React.FC<{
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  color: string;
+  variant: string;
+  onClick?: () => void;
+  linkText?: string;
+}> = ({ title, value, icon, color, variant, onClick, linkText }) => (
+  <Card
+    hoverable
+    onClick={onClick}
+    className={`cds-stat-card cds-stat-card--${variant}`}
+    styles={{ body: { padding: "20px 24px" } }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div>
+        <Text style={{ fontSize: 13, fontWeight: 500, color: "#64748b", display: "block", marginBottom: 8 }}>
+          {title}
+        </Text>
+        <Text style={{ fontSize: 28, fontWeight: 700, color: "#0f172a", lineHeight: 1 }}>
+          {value}
+        </Text>
+      </div>
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 12,
+          background: `${color}10`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 20,
+          color,
+        }}
+      >
+        {icon}
+      </div>
+    </div>
+    {linkText && (
+      <Button type="link" size="small" style={{ padding: 0, marginTop: 12, color, fontWeight: 500 }}>
+        {linkText} <ArrowRightOutlined />
+      </Button>
+    )}
+  </Card>
+);
 
 export const DashboardPage = () => {
   const { t } = useTranslation();
@@ -39,7 +89,6 @@ export const DashboardPage = () => {
     pagination: { pageSize: 1 },
   });
 
-  // Admin: fetch pending providers count
   const { data: pendingData } = useCustom({
     url: "/providers",
     method: "get",
@@ -58,90 +107,78 @@ export const DashboardPage = () => {
   if (isAdmin) {
     return (
       <div style={{ padding: 24 }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={4} style={{ margin: 0 }}>
-              {t("dashboard.adminTitle")}
-            </Title>
-            <Text type="secondary">
-              {t("dashboard.adminSubtitle")}
-            </Text>
-          </Col>
-        </Row>
+        <div className="cds-page-header">
+          <Title level={4} style={{ margin: 0 }}>
+            {t("dashboard.adminTitle")}
+          </Title>
+          <Text type="secondary">{t("dashboard.adminSubtitle")}</Text>
+        </div>
 
-        <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+        <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} lg={6}>
-            <Card hoverable onClick={() => navigate("/admin/providers")}>
-              <Statistic
-                title={t("dashboard.pendingApprovals")}
-                value={pendingProviders}
-                prefix={<AuditOutlined style={{ color: "#fa541c" }} />}
-                valueStyle={pendingProviders > 0 ? { color: "#fa541c" } : undefined}
-              />
-              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                {t("dashboard.review")} <ArrowRightOutlined />
-              </Button>
-            </Card>
+            <StatCard
+              title={t("dashboard.pendingApprovals")}
+              value={pendingProviders}
+              icon={<AuditOutlined />}
+              color={pendingProviders > 0 ? "#dc2626" : "#f59e0b"}
+              variant={pendingProviders > 0 ? "red" : "orange"}
+              onClick={() => navigate("/admin/providers")}
+              linkText={t("dashboard.review")}
+            />
           </Col>
-
           <Col xs={24} sm={12} lg={6}>
-            <Card hoverable onClick={() => navigate("/providers")}>
-              <Statistic
-                title={t("dashboard.companies")}
-                value="—"
-                prefix={<TeamOutlined style={{ color: "#52c41a" }} />}
-              />
-              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                {t("dashboard.viewAll")} <ArrowRightOutlined />
-              </Button>
-            </Card>
+            <StatCard
+              title={t("dashboard.companies")}
+              value="--"
+              icon={<TeamOutlined />}
+              color="#16a34a"
+              variant="green"
+              onClick={() => navigate("/providers")}
+              linkText={t("dashboard.viewAll")}
+            />
           </Col>
-
           <Col xs={24} sm={12} lg={6}>
-            <Card hoverable onClick={() => navigate("/demands")}>
-              <Statistic
-                title={t("dashboard.requests")}
-                value={demandTotal}
-                prefix={<FileTextOutlined style={{ color: "#1890ff" }} />}
-              />
-              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                {t("dashboard.viewAll")} <ArrowRightOutlined />
-              </Button>
-            </Card>
+            <StatCard
+              title={t("dashboard.requests")}
+              value={demandTotal}
+              icon={<FileTextOutlined />}
+              color="#2563eb"
+              variant="blue"
+              onClick={() => navigate("/demands")}
+              linkText={t("dashboard.viewAll")}
+            />
           </Col>
-
           <Col xs={24} sm={12} lg={6}>
-            <Card hoverable onClick={() => navigate("/contracts")}>
-              <Statistic
-                title={t("dashboard.contracts")}
-                value={contractTotal}
-                prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
-              />
-              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                {t("dashboard.viewAll")} <ArrowRightOutlined />
-              </Button>
-            </Card>
+            <StatCard
+              title={t("dashboard.contracts")}
+              value={contractTotal}
+              icon={<FileProtectOutlined />}
+              color="#7c3aed"
+              variant="purple"
+              onClick={() => navigate("/contracts")}
+              linkText={t("dashboard.viewAll")}
+            />
           </Col>
         </Row>
 
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card>
-              <Space direction="vertical" style={{ width: "100%" }}>
-                <Text strong>{t("dashboard.quickActions")}</Text>
-                <Button
-                  block
-                  icon={<AuditOutlined />}
-                  onClick={() => navigate("/admin/providers")}
-                >
+          <Col xs={24} sm={12} lg={8}>
+            <Card styles={{ body: { padding: "20px 24px" } }}>
+              <Text strong style={{ fontSize: 14, display: "block", marginBottom: 16 }}>
+                {t("dashboard.quickActions")}
+              </Text>
+              <Space direction="vertical" style={{ width: "100%" }} size={8}>
+                <Button block icon={<AuditOutlined />} onClick={() => navigate("/admin/providers")}>
                   {t("dashboard.reviewCompanies")}
                 </Button>
-                <Button
-                  block
-                  icon={<WalletOutlined />}
-                  onClick={() => navigate("/payments")}
-                >
+                <Button block icon={<WalletOutlined />} onClick={() => navigate("/payments")}>
                   {t("dashboard.payments")}
+                </Button>
+                <Button block icon={<BarChartOutlined />} onClick={() => navigate("/admin/analytics")}>
+                  {t("analytics.adminDashboard")}
+                </Button>
+                <Button block icon={<RobotOutlined />} onClick={() => navigate("/admin/agent-sessions")}>
+                  {t("admin.agentSessions")}
                 </Button>
               </Space>
             </Card>
@@ -154,15 +191,13 @@ export const DashboardPage = () => {
   // --- Customer / Provider Dashboard ---
   return (
     <div style={{ padding: 24 }}>
-      <Row justify="space-between" align="middle" gutter={[0, 12]}>
+      <Row justify="space-between" align="middle" gutter={[0, 12]} className="cds-page-header">
         <Col xs={24} sm={16}>
           <Title level={4} style={{ margin: 0 }}>
-            {t("dashboard.welcome")}, {identity?.name ?? "Benutzer"}
+            {t("dashboard.welcome")}, {identity?.name ?? "User"}
           </Title>
           <Text type="secondary">
-            {isProvider
-              ? t("dashboard.providerSubtitle")
-              : t("dashboard.customerSubtitle")}
+            {isProvider ? t("dashboard.providerSubtitle") : t("dashboard.customerSubtitle")}
           </Text>
         </Col>
         <Col xs={24} sm={8} style={{ textAlign: "right" }}>
@@ -171,8 +206,13 @@ export const DashboardPage = () => {
               type="primary"
               icon={<PlusOutlined />}
               size="large"
-              block
               className="cds-mobile-full-btn"
+              style={{
+                height: 44,
+                borderRadius: 10,
+                fontWeight: 600,
+                boxShadow: "0 4px 16px rgba(37,99,235,0.25)",
+              }}
               onClick={() => navigate("/demands/create")}
             >
               {t("dashboard.newMovingRequest")}
@@ -183,8 +223,14 @@ export const DashboardPage = () => {
               type="primary"
               icon={<ShoppingOutlined />}
               size="large"
-              block
               className="cds-mobile-full-btn"
+              style={{
+                height: 44,
+                borderRadius: 10,
+                fontWeight: 600,
+                background: "linear-gradient(135deg, #16a34a, #15803d)",
+                boxShadow: "0 4px 16px rgba(22,163,106,0.25)",
+              }}
               onClick={() => navigate("/demands")}
             >
               {t("dashboard.marketplaceBtn")}
@@ -193,89 +239,66 @@ export const DashboardPage = () => {
         </Col>
       </Row>
 
-      <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
-          <Card hoverable onClick={() => navigate("/demands")}>
-            <Statistic
-              title={isProvider ? t("dashboard.marketplace") : t("dashboard.myDemands")}
-              value={demandTotal}
-              prefix={
-                isProvider ? (
-                  <ShoppingOutlined style={{ color: "#52c41a" }} />
-                ) : (
-                  <FileTextOutlined style={{ color: "#1890ff" }} />
-                )
-              }
-            />
-            <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-              {t("dashboard.viewAll")} <ArrowRightOutlined />
-            </Button>
-          </Card>
+          <StatCard
+            title={isProvider ? t("dashboard.marketplace") : t("dashboard.myDemands")}
+            value={demandTotal}
+            icon={isProvider ? <ShoppingOutlined /> : <FileTextOutlined />}
+            color={isProvider ? "#16a34a" : "#2563eb"}
+            variant={isProvider ? "green" : "blue"}
+            onClick={() => navigate("/demands")}
+            linkText={t("dashboard.viewAll")}
+          />
         </Col>
 
         {isProvider && (
           <Col xs={24} sm={12} lg={6}>
-            <Card hoverable onClick={() => navigate("/offers")}>
-              <Statistic
-                title={t("dashboard.myOffers")}
-                value="—"
-                prefix={<DollarOutlined style={{ color: "#fa8c16" }} />}
-              />
-              <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-                {t("dashboard.viewOffersBtn")} <ArrowRightOutlined />
-              </Button>
-            </Card>
+            <StatCard
+              title={t("dashboard.myOffers")}
+              value="--"
+              icon={<DollarOutlined />}
+              color="#f59e0b"
+              variant="orange"
+              onClick={() => navigate("/offers")}
+              linkText={t("dashboard.viewOffersBtn")}
+            />
           </Col>
         )}
 
         <Col xs={24} sm={12} lg={6}>
-          <Card hoverable onClick={() => navigate("/contracts")}>
-            <Statistic
-              title={t("dashboard.contracts")}
-              value={contractTotal}
-              prefix={<FileProtectOutlined style={{ color: "#722ed1" }} />}
-            />
-            <Button type="link" size="small" style={{ padding: 0, marginTop: 8 }}>
-              {t("dashboard.viewContractsBtn")} <ArrowRightOutlined />
-            </Button>
-          </Card>
+          <StatCard
+            title={t("dashboard.contracts")}
+            value={contractTotal}
+            icon={<FileProtectOutlined />}
+            color="#7c3aed"
+            variant="purple"
+            onClick={() => navigate("/contracts")}
+            linkText={t("dashboard.viewContractsBtn")}
+          />
         </Col>
 
         <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Space direction="vertical">
-              <Text strong>{t("dashboard.quickActions")}</Text>
+          <Card styles={{ body: { padding: "20px 24px" } }}>
+            <Text strong style={{ fontSize: 14, display: "block", marginBottom: 16 }}>
+              {t("dashboard.quickActions")}
+            </Text>
+            <Space direction="vertical" style={{ width: "100%" }} size={8}>
               {!isProvider ? (
                 <>
-                  <Button
-                    block
-                    icon={<PlusOutlined />}
-                    onClick={() => navigate("/demands/create")}
-                  >
+                  <Button block icon={<PlusOutlined />} onClick={() => navigate("/demands/create")}>
                     {t("dashboard.newDemand")}
                   </Button>
-                  <Button
-                    block
-                    icon={<FileProtectOutlined />}
-                    onClick={() => navigate("/contracts")}
-                  >
+                  <Button block icon={<FileProtectOutlined />} onClick={() => navigate("/contracts")}>
                     {t("dashboard.viewContracts")}
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button
-                    block
-                    icon={<ShoppingOutlined />}
-                    onClick={() => navigate("/demands")}
-                  >
+                  <Button block icon={<ShoppingOutlined />} onClick={() => navigate("/demands")}>
                     {t("dashboard.findJobs")}
                   </Button>
-                  <Button
-                    block
-                    icon={<DollarOutlined />}
-                    onClick={() => navigate("/offers")}
-                  >
+                  <Button block icon={<DollarOutlined />} onClick={() => navigate("/offers")}>
                     {t("dashboard.viewOffers")}
                   </Button>
                 </>

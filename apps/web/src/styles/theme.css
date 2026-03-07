@@ -1,0 +1,198 @@
+/* =============================================================================
+   CDS Platform — Design System Overrides
+   Professional look: shadows, transitions, glassmorphism, hover states
+   ============================================================================= */
+
+/* --- Google Fonts: Inter --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* --- Global transitions --- */
+.ant-card,
+.ant-btn,
+.ant-tag,
+.ant-table-row,
+.ant-menu-item,
+.ant-statistic {
+  transition: all 0.2s ease !important;
+}
+
+/* --- Card enhancements --- */
+.ant-card {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08) !important;
+  border-color: rgba(37, 99, 235, 0.12) !important;
+}
+
+.ant-card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12) !important;
+}
+
+/* --- Table enhancements --- */
+.ant-table-row:hover > td {
+  background: #f0f5ff !important;
+}
+
+.ant-table-row {
+  cursor: pointer;
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 11px !important;
+  letter-spacing: 0.5px;
+  color: #64748b !important;
+}
+
+/* Zebra striping */
+.ant-table-row:nth-child(even) > td {
+  background: #fafbfc;
+}
+
+.ant-table-row:nth-child(even):hover > td {
+  background: #f0f5ff !important;
+}
+
+/* --- Button enhancements --- */
+.ant-btn-primary {
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+.ant-btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* --- Tag enhancements --- */
+.ant-tag {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* --- Sidebar enhancements --- */
+.ant-layout-sider {
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.ant-menu-dark .ant-menu-item {
+  margin: 4px 8px !important;
+  border-radius: 8px !important;
+}
+
+/* --- Header glass effect --- */
+.cds-header-wrap {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+/* --- Stat card gradient backgrounds --- */
+.cds-stat-card {
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+}
+
+.cds-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  opacity: 0.08;
+  transform: translate(30px, -30px);
+}
+
+.cds-stat-card--blue::before { background: #2563eb; }
+.cds-stat-card--green::before { background: #16a34a; }
+.cds-stat-card--orange::before { background: #f59e0b; }
+.cds-stat-card--purple::before { background: #7c3aed; }
+.cds-stat-card--red::before { background: #dc2626; }
+
+.cds-stat-card .ant-statistic-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.cds-stat-card .ant-statistic-content-value {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+}
+
+/* --- Page title area --- */
+.cds-page-header {
+  margin-bottom: 24px;
+}
+
+.cds-page-header h4 {
+  font-weight: 700 !important;
+  letter-spacing: -0.5px;
+}
+
+/* --- Scrollbar styling --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* --- Loading spinner enhancement --- */
+.ant-spin-dot-item {
+  background-color: #2563eb !important;
+}
+
+/* --- Empty state --- */
+.ant-empty-description {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* --- Notification/Toast --- */
+.ant-notification-notice {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* --- Form inputs --- */
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+/* --- Breadcrumb --- */
+.ant-breadcrumb {
+  font-size: 13px;
+}
+
+/* --- Keep photos label: hide text on small screens --- */
+@media (max-width: 576px) {
+  .cds-keep-photos-label {
+    display: none;
+  }
+}

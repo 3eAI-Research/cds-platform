@@ -266,28 +266,41 @@ function App() {
                     >
                       <ThemedLayoutV2
                         Header={() => (
-                          <div style={{
+                          <div className="cds-header-wrap" style={{
                             height: 48,
                             display: "flex",
                             alignItems: "center",
-                            background: "#fff",
-                            borderBottom: "1px solid #f0f0f0",
                             padding: "0 16px",
                           }}>
                             <AppHeader />
                           </div>
                         )}
-                        Title={({ collapsed }) =>
-                          collapsed ? (
-                            <span style={{ fontSize: 16, fontWeight: 700 }}>
-                              CDS
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: 16, fontWeight: 700 }}>
-                              CDS Platform
-                            </span>
-                          )
-                        }
+                        Title={({ collapsed }) => (
+                          <div style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            padding: "12px 0",
+                          }}>
+                            <div style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 8,
+                              background: "linear-gradient(135deg, #2563eb, #0ea5e9)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                            }}>
+                              <span style={{ color: "#fff", fontWeight: 800, fontSize: 16 }}>C</span>
+                            </div>
+                            {!collapsed && (
+                              <span style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", letterSpacing: -0.3 }}>
+                                CDS Platform
+                              </span>
+                            )}
+                          </div>
+                        )}
                       >
                         <div style={{ paddingBottom: 60 }} className="cds-main-content">
                           <Outlet />
