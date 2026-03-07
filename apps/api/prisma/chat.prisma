@@ -1,0 +1,38 @@
+model ChatChannel {
+  id                  String    @id @default(uuid()) @db.Uuid
+  demandId            String    @map("demand_id") @db.Uuid
+  contractId          String?   @map("contract_id") @db.Uuid
+  customerUserId      String    @map("customer_user_id") @db.Uuid
+  providerUserId      String    @map("provider_user_id") @db.Uuid
+  lastMessageAt       DateTime? @map("last_message_at") @db.Timestamptz
+  closedAt            DateTime? @map("closed_at") @db.Timestamptz
+
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  messages            ChatMessage[]
+
+  @@unique([demandId, customerUserId, providerUserId])
+  @@index([customerUserId])
+  @@index([providerUserId])
+  @@map("chat_channels")
+  @@schema("chat")
+}
+
+model ChatMessage {
+  id                  String    @id @default(uuid()) @db.Uuid
+  channelId           String    @map("channel_id") @db.Uuid
+  senderUserId        String    @map("sender_user_id") @db.Uuid
+  content             String    @map("content") @db.Text
+  attachmentKey       String?   @map("attachment_key")
+  readAt              DateTime? @map("read_at") @db.Timestamptz
+
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  channel             ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId, createdAt])
+  @@index([senderUserId])
+  @@map("chat_messages")
+  @@schema("chat")
+}
