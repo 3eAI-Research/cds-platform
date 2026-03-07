@@ -351,6 +351,11 @@ export const tr = {
     elevatorNone: "Asansör yok",
     elevatorPersonal: "Yolcu asansörü",
     elevatorFreight: "Yük asansörü",
+    searchPlaceholder: "Adres girin...",
+    pickOnMap: "Haritadan seç",
+    confirmLocation: "Konumu onayla",
+    selected: "Seçilen",
+    pickAddress: "Adres seç",
   },
   validation: {
     required: "Zorunlu",
@@ -423,12 +428,5 @@ export const tr = {
     selectChannel: "Bir sohbet seçin",
     typeMessage: "Mesaj yazın...",
     send: "Gönder",
-  },
-  address: {
-    searchPlaceholder: "Adres girin...",
-    pickOnMap: "Haritadan seç",
-    confirmLocation: "Konumu onayla",
-    selected: "Seçilen",
-    pickAddress: "Adres seç",
   },
 };

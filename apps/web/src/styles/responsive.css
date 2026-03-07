@@ -108,3 +108,49 @@
 .recharts-responsive-container {
   max-width: 100%;
 }
+
+/* --- Mobile bottom navigation: show only on mobile, hide sidebar --- */
+.cds-mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Show bottom nav */
+  .cds-mobile-bottom-nav {
+    display: flex !important;
+  }
+
+  /* Hide Refine sidebar on mobile */
+  .ant-layout-sider {
+    display: none !important;
+  }
+
+  /* Remove sider trigger */
+  .ant-layout-sider-trigger {
+    display: none !important;
+  }
+
+  /* Adjust main content to full width */
+  .ant-layout {
+    margin-left: 0 !important;
+  }
+
+  /* Bottom padding for fixed nav */
+  .cds-main-content {
+    padding-bottom: 64px !important;
+  }
+
+  /* Compact header */
+  .ant-layout-header {
+    padding: 0 8px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
+}
+
+/* Desktop: hide bottom nav padding */
+@media (min-width: 769px) {
+  .cds-main-content {
+    padding-bottom: 0 !important;
+  }
+}

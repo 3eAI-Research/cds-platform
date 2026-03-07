@@ -351,6 +351,11 @@ export const en = {
     elevatorNone: "No elevator",
     elevatorPersonal: "Passenger elevator",
     elevatorFreight: "Freight elevator",
+    searchPlaceholder: "Enter address...",
+    pickOnMap: "Pick on map",
+    confirmLocation: "Confirm location",
+    selected: "Selected",
+    pickAddress: "Select address",
   },
   validation: {
     required: "Required",
@@ -422,12 +427,5 @@ export const en = {
     selectChannel: "Select a conversation",
     typeMessage: "Type a message...",
     send: "Send",
-  },
-  address: {
-    searchPlaceholder: "Enter address...",
-    pickOnMap: "Pick on map",
-    confirmLocation: "Confirm location",
-    selected: "Selected",
-    pickAddress: "Select address",
   },
 };

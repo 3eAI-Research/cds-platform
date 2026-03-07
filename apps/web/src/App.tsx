@@ -36,6 +36,7 @@ import { dataProvider } from "./providers/data-provider";
 import { authProvider } from "./providers/auth-provider";
 import { i18nProvider } from "./providers/i18n-provider";
 import { AppHeader } from "./components/header";
+import { MobileBottomNav } from "./components/mobile-bottom-nav";
 import { ErrorBoundary } from "./components/error-boundary";
 
 // Lazy-loaded pages
@@ -288,7 +289,10 @@ function App() {
                           )
                         }
                       >
-                        <Outlet />
+                        <div style={{ paddingBottom: 60 }} className="cds-main-content">
+                          <Outlet />
+                        </div>
+                        <MobileBottomNav />
                       </ThemedLayoutV2>
                     </Authenticated>
                   }
