@@ -1,9 +1,10 @@
 import { useCustom } from "@refinedev/core";
-import { Badge, Button, Dropdown, List, Typography, Space, Empty } from "antd";
+import { Badge, Button, Dropdown, List, Typography, Space, Empty, message } from "antd";
 import { BellOutlined, CheckOutlined } from "@ant-design/icons";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSocket } from "../hooks/useSocket";
 
 const { Text } = Typography;
 
@@ -20,6 +21,7 @@ export const NotificationBell = () => {
   const { t } = useTranslation();
   const role = localStorage.getItem("cds-role") || "customer";
   const [open, setOpen] = useState(false);
+  const { on } = useSocket();
 
   const { data, refetch } = useCustom<{ items: Notification[]; total: number }>({
     url: "/notifications",
@@ -29,6 +31,17 @@ export const NotificationBell = () => {
       headers: { "X-User-Role": role },
     },
   });
+
+  useEffect(() => {
+    const unsub = on("*", (event) => {
+      message.info({
+        content: `${event.type}: ${JSON.stringify(event.payload).slice(0, 80)}`,
+        duration: 4,
+      });
+      refetch();
+    });
+    return unsub;
+  }, [on, refetch]);
 
   const notifications = data?.data?.items ?? [];
   const unreadCount = notifications.filter((n) => !n.readAt).length;
