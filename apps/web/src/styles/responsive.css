@@ -148,6 +148,17 @@
   }
 }
 
+/* --- Steps: compact on mobile --- */
+@media (max-width: 576px) {
+  .cds-step-title {
+    display: none;
+  }
+
+  .ant-steps-item-icon {
+    margin-inline-end: 0 !important;
+  }
+}
+
 /* Desktop: hide bottom nav padding */
 @media (min-width: 769px) {
   .cds-main-content {
